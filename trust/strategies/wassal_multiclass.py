@@ -385,12 +385,15 @@ class WASSAL_Multiclass(Strategy):
 
 
         self.label_to_simplex_query = {}
+        self.label_to_simplex_refrain = {}
         unique_labels = torch.unique(torch.stack([item[1] for item in self.query_dataset]))
         
         for i, label in enumerate(unique_labels):
             self.label_to_simplex_query[label.item()] = self.classwise_simplex_query[i]
             
-
+        for i, label in enumerate(unique_labels):
+            self.label_to_simplex_refrain[label.item()] = self.classwise_simplex_refrain[i]
+        
          # Hyperparameters for sinkhorn iterations
          #if self.args has lr, use that else use 0.001
         lr = self.args['lr'] if 'lr' in self.args else 0.001
@@ -437,10 +440,13 @@ class WASSAL_Multiclass(Strategy):
                 # For every non-class_idx, select equal instances
                 num_samples_per_class = num_query_instances // (self.num_classes - 1)
                 refrain_indices = []
-                for other_class_idx in unique_labels:
+                for other_class_idx, other_class_label in enumerate(unique_labels):
+
                     
                     if other_class_idx != class_idx:
-                        other_class_mask = (torch.stack([item[1] for item in self.query_dataset]) == unique_labels[other_class_idx]).to(self.device)
+                        other_class_mask = (torch.stack([item[1] for item in self.query_dataset]) == other_class_label).to(self.device)
+
+
                         other_class_indices = torch.nonzero(other_class_mask).squeeze().tolist()
                         if(len(other_class_indices)>num_samples_per_class):
                             # Randomly sample indices without replacement
@@ -561,7 +567,7 @@ class WASSAL_Multiclass(Strategy):
             # Filter out indices that have already been selected
             sorted_indices = [idx for idx in sorted_indices if idx not in selected_indices_set]
 
-            simplex_refrain = self.classwise_simplex_refrain[class_idx]
+            simplex_refrain = self.label_to_simplex_refrain[class_idx]
             # Mask out the values in simplex_query and simplex_refrain tensors
             # corresponding to selected indices
             masked_simplex_query = simplex_query.clone()

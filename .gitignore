@@ -1,3 +1,7 @@
+*.pyc
+trust/__pycache__/*
+data
+results
 tutorials/All_Wassal/data/cifar-10-batches-py/batches.meta
 trust/__pycache__/__init__.cpython-310.pyc
 tutorials/results/*
@@ -25,3 +29,12 @@ pneumo_simplex_distribution_class_1.png
 data/test_32x32.mat
 .gitignore
 data/train_32x32.mat
+data/cifar-10-python.tar.gz
+trust/__pycache__/__init__.cpython-38.pyc
+trust/strategies/__pycache__/__init__.cpython-38.pyc
+trust/strategies/__pycache__/scmi.cpython-38.pyc
+trust/strategies/__pycache__/smi.cpython-38.pyc
+trust/strategies/__pycache__/strategy.cpython-38.pyc
+trust/utils/__pycache__/custom_dataset.cpython-38.pyc
+trust/utils/__pycache__/utils.cpython-38.pyc
+trust/__pycache__/__init__.cpython-38.pyc

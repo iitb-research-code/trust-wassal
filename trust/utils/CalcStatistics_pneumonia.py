@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #budgets=['5']
 #filename = "output_statistics_cifar_classimb_withAL_"
-rounds=10
+rounds=9
 
 #for pneumonia
 base_dir = "/home/wassal/trust-wassal/tutorials/results/pneumoniamnist/classimb/rounds"+str(rounds)

@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 #for cifar
-#base_dir = "/home/wassal/trust-wassal/tutorials/results/cifar10/classimb"
+#base_dir = "/home/wassal/trust-wassal/tutorials/results/svhn/classimb"
 #budgets=['50', '100', '150', '200']
 
 #budgets=['5']
@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for pneumonia
-base_dir = "/home/venkat/trust-wassal/tutorials/results/cifar10/classimb/rounds"+str(rounds)
+base_dir = "/home/venkat/trust-wassal/tutorials/results/svhn/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
-budgets=[100,200]
-filename = "output_statistics_cifar10_vanilla"
+budgets=[100]
+filename = "output_statistics_svhn_vanilla"
 
 #strategies = ["WASSAL", "WASSAL_P", "fl1mi", "fl2mi", "gcmi", "logdetmi", "random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","logdetcmi","flcmi","margin"]
 #strategy_group="allstrategies"
