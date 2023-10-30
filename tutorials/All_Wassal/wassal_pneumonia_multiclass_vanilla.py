@@ -27,6 +27,7 @@ from matplotlib import pyplot as plt
 import sys
 import requests
 sys.path.append("/home/venkatapathy/trust-wassal/")
+sys.path.append("/home/venkatapathy/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
