@@ -306,7 +306,7 @@ class WASSAL_Multiclass(Strategy):
         
 
         # 1. Aggregate Maximum Values Across Classes
-        max_across_classes = torch.zeros_like(self.unlabeled_dataset, device=self.device)
+        max_across_classes = torch.zeros(unlabeled_dataset_len, device=self.device)
         for classwise_simplex in classwise_simplex_query:
             max_across_classes = torch.max(max_across_classes, classwise_simplex)
 
