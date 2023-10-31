@@ -664,9 +664,9 @@ def run_targeted_selection(
 
     # Set batch size for train, validation and test datasets
     N = len(train_set)
-    trn_batch_size = 1000
-    val_batch_size = 100
-    tst_batch_size = 100
+    trn_batch_size = 250
+    val_batch_size = 50
+    tst_batch_size = 50
 
     # # Create dataloaders
     # trainloader = torch.utils.data.DataLoader(
