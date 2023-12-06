@@ -11,6 +11,8 @@ from torchvision.models import resnet50, resnet18,resnet101
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+
+
 class customSampler(torch.utils.data.Sampler):
     def __init__(self, ind):
         self.ind = ind
@@ -89,7 +91,7 @@ class WASSAL_Multiclass(Strategy):
     
     def _compute_features(self, dataset, embedding_type, layer_name=None, gradType=None,isLabeled=False):
         """Helper method to compute features for a dataset."""
-        dataloader = DataLoader(dataset, batch_size=4000, shuffle=False)
+        dataloader = DataLoader(dataset, batch_size=1000, shuffle=False)
         features = []
          # Ensure model is in evaluation mode for consistent feature extraction
         self.model.eval()
@@ -150,8 +152,8 @@ class WASSAL_Multiclass(Strategy):
         minibatch_size = self.args['minibatch_size'] if 'minibatch_size' in self.args else 4000
        
         num_batches = math.ceil(unlabeled_dataset_len/minibatch_size)
-        if(self.args['verbose']):
-            print('There are',unlabeled_dataset_len,'Unlabeled dataset')
+        # if(self.args['verbose']):
+        #     print('There are',unlabeled_dataset_len,'Unlabeled dataset')
         num_classes = len(torch.unique(torch.stack([item[1] for item in self.query_dataset])))
         classwise_simplex_query = []
         classwise_simplex_refrain = []
@@ -269,7 +271,7 @@ class WASSAL_Multiclass(Strategy):
                     #get minibatch unlabeled features
                     unlabeled_features = unlabeled_dataset_features[begindex : endindex]
                     
-                    
+                        
                     
                     unlabeled_features=unlabeled_features.to(self.device)
                     loss_avg_query=loss_avg_query+(loss_func(simplex_batch_query, unlabeled_features, beta, query_features) / num_batches)
@@ -306,7 +308,7 @@ class WASSAL_Multiclass(Strategy):
         
 
         # 1. Aggregate Maximum Values Across Classes
-        max_across_classes = torch.zeros_like(self.unlabeled_dataset, device=self.device)
+        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
         for classwise_simplex in classwise_simplex_query:
             max_across_classes = torch.max(max_across_classes, classwise_simplex)
 
@@ -395,8 +397,7 @@ class WASSAL_Multiclass(Strategy):
         minibatch_size = self.args['minibatch_size'] if 'minibatch_size' in self.args else 4000
        
         num_batches = math.ceil(unlabeled_dataset_len/minibatch_size)
-        if(self.args['verbose']):
-            print('There are',unlabeled_dataset_len,'Unlabeled dataset')
+        
         num_classes = len(torch.unique(torch.stack([item[1] for item in self.query_dataset])))
         classwise_simplex_query = []
         classwise_simplex_refrain = []

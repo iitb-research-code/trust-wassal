@@ -286,10 +286,7 @@ def getQuerySet(val_set, imb_cls_idx, recipe="asis"):
         for i in imb_cls_idx:
             imb_cls_samples = list(torch.where(targets_tensor == i)[0].cpu().numpy())
             miscls_idx += imb_cls_samples
-        print(
-            "Total samples from imbalanced classes as Queries (Size of query set): ",
-            len(miscls_idx),
-        )
+        
         return SubsetWithTargets(val_set, miscls_idx, val_set.targets[miscls_idx])
 
     elif recipe == "balanced":
@@ -390,6 +387,8 @@ def getPerClassSel(lake_set, subset, num_cls):
 
 def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_name):
     # Plot the distribution of the simplex query colorcoded based odn the true labels
+    # Data storage structure
+    data_to_store = []
     for simplex_query, simplex_refrain, class_idx in classwise_final_indices_simplex:
         # Determine histogram bin edges
         counts, bin_edges = np.histogram(simplex_query, bins=10)
@@ -440,7 +439,18 @@ def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_nam
         plt.tight_layout()
         plt.savefig(os.path.join(folder_name,"cifar10_simplex_distribution_class_{}.png".format(class_idx)))
         plt.close()
+        # Iterate over simplex values for storage
+        for value in simplex_query.numpy():  # Convert tensor to numpy array
+            actual_classes = np.array(lake_set.targets)[np.isclose(simplex_query.numpy(), value)]
+            for real_class in actual_classes:
+                data_to_store.append((real_class, class_idx, value))
 
+    # Serialize and save the data to CSV
+    data_file_path = os.path.join(folder_name, "simplex_data.csv")
+    with open(data_file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Real Class', 'Hypothesized Class', 'Simplex Value'])
+        writer.writerows(data_to_store)
 
 def print_final_results(res_dict, sel_cls_idx):
     print(
@@ -517,8 +527,8 @@ def top_elements_contribute_to_percentage(simplex_query, n_percent, budget):
     total_sum = sum(value for index, value in sorted_simplex)
 
     # If the array doesn't sum up to 1, you might want to handle this case
-    if total_sum != 1:
-        print("Total sum of simplex is", total_sum)
+    # if total_sum != 1:
+    #     print("Total sum of simplex is", total_sum)
 
     target_sum = n_percent / 100.0  # Convert percentage to fraction
     cumulative_sum = 0
@@ -548,9 +558,10 @@ def top_elements_contribute_to_percentage(simplex_query, n_percent, budget):
 # %%
 feature = "classimb"
 
+experiment_name="default"
 # datadir = 'data/'
 datadir = (
-    "data/medmnist"  # contains the npz file of the data_name dataset listed below
+    "../data"  # contains the npz file of the data_name dataset listed below
 )
 data_name = "pneumoniamnist"
 
@@ -558,7 +569,7 @@ learning_rate = 0.0003
 computeClassErrorLog = True
 if __name__ == "__main__":
     # Accept skip_strategies and skip_budgets from command line arguments
-    
+    experiment_name=sys.argv[5]
     device_id = int(sys.argv[4])
     print('setting deviceid to',str(device_id))
 else:
@@ -617,6 +628,7 @@ def run_targeted_selection(
     strategy="SIM",
     sf="",
     embedding_type="features",
+    soft_loss_hyperparam="3"
 ):
     # load the dataset in the class imbalance setting
     (
@@ -674,6 +686,8 @@ def run_targeted_selection(
     # Results logging file
     all_logs_dir = (
         "/home/wassal/trust-wassal/tutorials/results/"
+        + experiment_name
+        + "/"
         + dataset_name
         + "/"
         + feature
@@ -691,10 +705,7 @@ def run_targeted_selection(
     exp_name = (
         dataset_name
         + "_"
-        + feature
-        + "_"
-        + strategy
-        + "_"
+        
         + str(len(sel_cls_idx))
         + "_"
         + sf
@@ -702,7 +713,7 @@ def run_targeted_selection(
         + str(bud)
         + "_rounds:"
         + str(num_rounds)
-        + "_runs"
+        + "_runs_"
         + str(run)
     )
 
@@ -729,7 +740,7 @@ def run_targeted_selection(
         "embedding_type": embedding_type,
         "keep_embedding": True,
         "lr": 0.8,
-        "iterations": 15,
+        "ds": 15,
         "step_size": 3,
         "min_iteration": 5,
     }
@@ -1004,6 +1015,8 @@ def run_targeted_selection(
                 #create a folder to save the simplex plots
                 simplex_dir = (
                     "/home/wassal/trust-wassal/tutorials/results/"
+                    + experiment_name
+                    + "/"
                     + dataset_name
                     + "/"
                     + feature
@@ -1245,7 +1258,7 @@ def run_targeted_selection(
                     outputs = model(inputs)
                     hard_loss += criterion(outputs, targets)
                 
-                loss=hard_loss+(3*soft_loss)
+                loss=hard_loss+(soft_loss_hyperparam*soft_loss)
                 loss.backward()
                 optimizer.step()
                 #             scheduler.step()
@@ -1387,10 +1400,9 @@ def run_targeted_selection(
 # %%
 experiments = ["exp2", "exp3", "exp4", "exp5"]
 seeds = [24, 48, 86, 28, 92]
-budgets = [40, 50, 60, 70, 80, 90, 100]
+budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 #budgets = [100]
-device_id = 3
-device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
+
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
@@ -1461,12 +1473,13 @@ initModelPath = (
 #skip strategies that are already run
 skip_strategies = []
 skip_budgets = []
-
+soft_loss_hyperparam=3
 if __name__ == "__main__":
     # Accept skip_strategies and skip_budgets from command line arguments
     skip_strategies = sys.argv[1].split()
     skip_methods= sys.argv[2].split()
     skip_budgets = list(map(int, sys.argv[3].split()))
+    soft_loss_hyperparam=float(sys.argv[6])
 
 
 # Model Creation
@@ -1523,4 +1536,5 @@ for i, experiment in enumerate(experiments):
                 strategy,
                 method,
                 embedding_type,
+                soft_loss_hyperparam
             )

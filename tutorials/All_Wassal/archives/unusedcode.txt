@@ -1,0 +1,48 @@
+#unused code
+            #overall_loss=[]
+            # beta = torch.ones(query_dataset_len, requires_grad=False)/query_dataset_len
+            # query_dataloader = DataLoader(dataset=self.query_dataset, batch_size=len(self.query_dataset), shuffle=False)
+            # query_iter=iter(query_dataloader)
+            # query_imgs, _= next(query_iter)
+            # query_imgs=query_imgs.to(self.device)
+            # beta = beta.to(self.device)
+
+            
+            loss_avg = 0.0
+            
+            #batchwise WD calculation
+            
+                # Get the features using the pretrained model
+                if(embedding_type == "features"):
+                    unlabeled_features = self.get_feature_embedding(unlabeled_imgs, True, layer_name)
+                    query_features = self.get_feature_embedding(query_imgs, True, layer_name)
+                if(embedding_type == "gradients"):
+                    unlabeled_features = self.get_grad_embedding(self.unlabeled_dataset, True, gradType)
+                    query_features = self.get_grad_embedding(self.query_dataset, False, gradType)
+            
+                unlabeled_features = unlabeled_features.view(unlabeled_features.shape[0], -1)
+                query_features = query_features.view(query_features.shape[0], -1)
+                loss = torch.tensor(0.0, requires_grad=True)
+                #loop through the class_idx in query_dataset
+                
+                
+                
+                    simplex_query = self.classwise_simplex_query[class_idx]
+                    simplex_query.requires_grad = True
+                    simplex_batch_query = simplex_query[batch_idx * unlabeled_dataloader.batch_size : (batch_idx + 1) * unlabeled_dataloader.batch_size]
+                    simplex_batch_query=simplex_batch_query.to(self.device)
+
+                    # Generate mask for current class
+                    class_mask = (torch.stack([item[1] for item in self.query_dataset]) == unique_labels[class_idx]).to(self.device)
+                    
+                     # Update beta to match the size of filtered_query_features
+                    filtered_beta = beta[class_mask]
+                    filtered_beta = torch.ones(len(filtered_query_features), requires_grad=False)/len(filtered_query_features)
+                    filtered_beta = filtered_beta.to(self.device)
+                    loss = loss + loss_func(simplex_batch_query, unlabeled_features, filtered_beta, filtered_query_features)
+
+                    #uniform distribution of weights
+                overall_loss.append(loss.item())
+                loss_avg = loss_avg + loss / num_batches
+                batch_idx += 1 
+                   

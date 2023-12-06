@@ -575,7 +575,7 @@ else:
     device_id=1
     print('setting deviceid to default',str(device_id))
 
-device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 miscls = False  # Set to True if only the misclassified examples from the imbalanced classes is to be used
 
 num_cls = 10
