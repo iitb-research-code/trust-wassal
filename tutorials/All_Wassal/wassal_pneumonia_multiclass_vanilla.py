@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/wassal/trust-wassal/")
+sys.path.append("/home/venkat/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/wassal/distil")
+sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
@@ -263,7 +263,7 @@ def aug_train_subset(
     #print(len(lake_ss), len(remain_lake_set), len(lake_set))
     aug_train_set = ConcatWithTargets(train_set, lake_ss)
     aug_trainloader = torch.utils.data.DataLoader(
-        train_set, batch_size=1000, shuffle=True, pin_memory=True
+        train_set, batch_size=1000, shuffle=True, pin_memory=False
     )
     return aug_train_set, remain_lake_set, remain_true_lake_set, lake_ss
 
@@ -286,7 +286,10 @@ def getQuerySet(val_set, imb_cls_idx, recipe="asis"):
         for i in imb_cls_idx:
             imb_cls_samples = list(torch.where(targets_tensor == i)[0].cpu().numpy())
             miscls_idx += imb_cls_samples
-        
+        print(
+            "Total samples from imbalanced classes as Queries (Size of query set): ",
+            len(miscls_idx),
+        )
         return SubsetWithTargets(val_set, miscls_idx, val_set.targets[miscls_idx])
 
     elif recipe == "balanced":
@@ -685,7 +688,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/wassal/trust-wassal/tutorials/results/"
+        "/home/venkat/trust-wassal/tutorials/results/"
         + experiment_name
         + "/"
         + dataset_name
@@ -1014,7 +1017,7 @@ def run_targeted_selection(
                 ]
                 #create a folder to save the simplex plots
                 simplex_dir = (
-                    "/home/wassal/trust-wassal/tutorials/results/"
+                    "/home/venkat/trust-wassal/tutorials/results/"
                     + experiment_name
                     + "/"
                     + dataset_name
@@ -1392,7 +1395,7 @@ def run_targeted_selection(
     print("Total gain in accuracy: ", res_dict["test_acc"][i] - res_dict["test_acc"][0])
 
     #push message to url with AL and budget as title
-    requests.get('https://wirepusher.com/send?id=hbBompXx6&title='+sf+'_'+str(bud)+'&message=time'+str(timing[i]))
+    #requests.get('https://wirepusher.com/send?id=hbBompXx6&title='+sf+'_'+str(bud)+'&message=time'+str(timing[i]))
 
 #     tsne_plt.show()
 

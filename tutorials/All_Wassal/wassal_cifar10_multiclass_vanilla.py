@@ -1,4 +1,4 @@
-# %% [markdown]
+z# %% [markdown]
 # # Targeted Selection Demo For CIFAR10 Datasets With Rare Classes
 
 # %% [markdown]
@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/wassal/trust-wassal/")
+sys.path.append("/home/venkat/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/wassal/distil")
+sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
