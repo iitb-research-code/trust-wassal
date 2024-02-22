@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/wassal/distil")
+sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
@@ -575,7 +575,7 @@ else:
     device_id=1
     print('setting deviceid to default',str(device_id))
 
-device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
+device = "cuda:" if torch.cuda.is_available() else "cpu"
 miscls = False  # Set to True if only the misclassified examples from the imbalanced classes is to be used
 
 num_cls = 10
@@ -665,8 +665,8 @@ def run_targeted_selection(
     # Set batch size for train, validation and test datasets
     N = len(train_set)
     trn_batch_size = 1000
-    val_batch_size = 100
-    tst_batch_size = 100
+    val_batch_size = 200
+    tst_batch_size = 200
 
     # # Create dataloaders
     # trainloader = torch.utils.data.DataLoader(
@@ -674,11 +674,11 @@ def run_targeted_selection(
     # )
 
     valloader = torch.utils.data.DataLoader(
-        val_set, batch_size=val_batch_size, shuffle=False, pin_memory=False
+        val_set, batch_size=val_batch_size, shuffle=False, pin_memory=True
     )
 
     tstloader = torch.utils.data.DataLoader(
-        test_set, batch_size=tst_batch_size, shuffle=False, pin_memory=False
+        test_set, batch_size=tst_batch_size, shuffle=False, pin_memory=True
     )
 
     # lakeloader = torch.utils.data.DataLoader(
@@ -705,7 +705,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/wassal/trust-wassal/tutorials/results/"
+        "/home/venkat/trust-wassal/tutorials/results/"
         + dataset_name
         + "/"
         + feature
@@ -724,10 +724,6 @@ def run_targeted_selection(
     exp_name = (
         dataset_name
         + "_"
-        + feature
-        + "_"
-        + strategy
-        + "_"
         + str(len(sel_cls_idx))
         + "_"
         + sf
@@ -735,7 +731,7 @@ def run_targeted_selection(
         + str(bud)
         + "_rounds:"
         + str(num_rounds)
-        + "_runs"
+        + "_runs_"
         + str(run)
     )
 
@@ -756,11 +752,11 @@ def run_targeted_selection(
     }
 
     strategy_args = {
-        "minibatch_size": 10000,
+        "batch_size": trn_batch_size,
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.001,
+        "lr": 0.8,
         "iterations": 30,
         "step_size": 15,
         "min_iteration": 5,

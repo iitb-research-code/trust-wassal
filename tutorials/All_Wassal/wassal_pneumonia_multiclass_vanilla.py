@@ -564,7 +564,7 @@ feature = "classimb"
 experiment_name="default"
 # datadir = 'data/'
 datadir = (
-    "../data"  # contains the npz file of the data_name dataset listed below
+    "data"  # contains the npz file of the data_name dataset listed below
 )
 data_name = "pneumoniamnist"
 
@@ -708,7 +708,6 @@ def run_targeted_selection(
     exp_name = (
         dataset_name
         + "_"
-        
         + str(len(sel_cls_idx))
         + "_"
         + sf
@@ -1177,12 +1176,7 @@ def run_targeted_selection(
                     shuffle=True,
                     pin_memory=True,
                 )
-                # weighted_refrain_lakeloader = torch.utils.data.DataLoader(
-                #     weighted_refrain_lake_set,
-                #     batch_size=len(weighted_refrain_lake_set),
-                #     shuffle=True,
-                #     pin_memory=True,
-                # )
+            
             
 
             
@@ -1225,7 +1219,6 @@ def run_targeted_selection(
                 loss=0.0
                 soft_loss=0.0
                 hard_loss=0.0
-
                 model.train()
                 optimizer.zero_grad()
                 if "WITHSOFT" in strategy:
@@ -1462,7 +1455,9 @@ budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/wassal/trust-wassal/tutorials/results/"
+    "/home/venkat/trust-wassal/tutorials/results/"
+    + experiment_name
+    + "/"
     + data_name
     + "_"
     + model_name
@@ -1470,8 +1465,6 @@ initModelPath = (
     + embedding_type
     + "_"
     + str(learning_rate)
-    + "_"
-    + str(split_cfg["sel_cls_idx"])
 )
 #skip strategies that are already run
 skip_strategies = []
@@ -1484,9 +1477,14 @@ if __name__ == "__main__":
     skip_budgets = list(map(int, sys.argv[3].split()))
     soft_loss_hyperparam=float(sys.argv[6])
 
+#calculate time to run the next function
+start = time.time()
 
 # Model Creation
 model = create_model(model_name, num_cls, device, embedding_type)
+end = time.time()
+print("Time to create model: ", end - start)
+
 strategies = [
     # al soft
     ("WASSAL", "WASSAL"),

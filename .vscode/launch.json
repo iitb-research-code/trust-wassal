@@ -12,10 +12,13 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "AL random WASSAL",
-                "WASSAL leastconf_withsoft margin_withsoft badge_withsoft us_withsoft",
+                "WASSAL_WITHSOFT WASSAL AL_WITHSOFT",
+                "",
                 "20 30 40 50 60 70 80 90 100",
-                "1"
+                "0",
+                "onlyal",
+                "0.3"
+
             ],
         }
     ]
