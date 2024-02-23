@@ -194,10 +194,8 @@ def find_err_per_class(
         val_class_err_idxs.append(val_err_class_idx)
         tst_err_log.append(tst_error_perc)
         val_err_log.append(val_error_perc)
-
     if doIdisplayTable:
         displayTable(val_err_log, tst_err_log)
-
     tst_err_log.append(sum(tst_err_log) / len(tst_err_log))
     val_err_log.append(sum(val_err_log) / len(val_err_log))
     return tst_err_log, val_err_log, val_class_err_idxs
@@ -312,7 +310,6 @@ def getQuerySet(val_set, imb_cls_idx, recipe="asis"):
         )
 
         return SubsetWithTargets(val_set, miscls_idx, val_set.targets[miscls_idx])
-
     elif recipe == "penalized":
         class_counts = {i: 0 for i in imb_cls_idx}
         total_samples = len(targets_tensor)
@@ -579,7 +576,6 @@ else:
     device_id=1
     print('setting deviceid to default',str(device_id))
 device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
-#device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
 miscls = False  # Set to True if only the misclassified examples from the imbalanced classes is to be used
 
 num_cls = 2

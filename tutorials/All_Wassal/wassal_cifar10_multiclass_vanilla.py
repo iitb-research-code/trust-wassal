@@ -62,7 +62,6 @@ from trust.utils.viz import tsne_smi
 import math
 from random import shuffle
 
-
 # %% [markdown]
 # ### Helper functions
 
@@ -257,7 +256,7 @@ def aug_train_subset(
             remain_lake_idx,
             torch.Tensor(true_lake_set.targets.float())[remain_lake_idx],
         )
-    #     print(len(lake_ss),len(remain_lake_set),len(lake_set))
+    #print(len(lake_ss),len(remain_lake_set),len(lake_set))
     aug_train_set = ConcatWithTargets(train_set, lake_ss)
     aug_trainloader = torch.utils.data.DataLoader(
         train_set, batch_size=1000, shuffle=True, pin_memory=False
@@ -475,22 +474,6 @@ def analyze_simplex(args, unlabeled_set, simplex_query):
         total_query_weight += query_weight
     print("Weight of Query samples in simplex_query: {}".format(total_query_weight))
 
-class SubsetWeightedDataset(torch.utils.data.Dataset):
-    def __init__(self, lake_set, indices, targets, simplex_weights):
-        self.lake_set = lake_set
-        self.indices = indices
-        self.targets = targets
-        self.simplex_weights = simplex_weights
-
-    def __len__(self):
-        return len(self.indices)
-
-    def __getitem__(self, idx):
-        lake_idx = self.indices[idx]
-        image = self.lake_set[lake_idx][0]
-        target = self.targets[idx]
-        simplex_weight = self.simplex_weights[idx]
-        return image, target, simplex_weight
 
 class WeightedDataset(Dataset):
     def __init__(self, imgs, targets, simplex_query, private_targets, simplex_private):
@@ -529,8 +512,8 @@ def top_elements_contribute_to_percentage(simplex_query, n_percent, budget):
     total_sum = sum(value for index, value in sorted_simplex)
 
     # If the array doesn't sum up to 1, you might want to handle this case
-    if total_sum != 1:
-        print("Total sum of simplex is", total_sum)
+   # if total_sum != 1:
+   #     print("Total sum of simplex is", total_sum)
 
     target_sum = n_percent / 100.0  # Convert percentage to fraction
     cumulative_sum = 0
@@ -568,14 +551,13 @@ learning_rate = 0.0003
 computeClassErrorLog = True
 if __name__ == "__main__":
     # Accept skip_strategies and skip_budgets from command line arguments
-    
+    experiment_name=sys.argv[5]
     device_id = int(sys.argv[4])
     print('setting deviceid to',str(device_id))
 else:
     device_id=1
     print('setting deviceid to default',str(device_id))
-
-device = "cuda:" if torch.cuda.is_available() else "cpu"
+device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
 miscls = False  # Set to True if only the misclassified examples from the imbalanced classes is to be used
 
 num_cls = 10
@@ -707,6 +689,9 @@ def run_targeted_selection(
     # Results logging file
     all_logs_dir = (
         "/home/venkat/trust-wassal/tutorials/results/"
+        + experiment_name
+        + "/"
+        
         + dataset_name
         + "/"
         + feature
@@ -770,7 +755,7 @@ def run_targeted_selection(
         strategy_softsubset = WASSAL_Multiclass(
             train_set, unlabeled_lake_set, for_query_set, model, num_cls, strategy_args
         )
-    
+
     print("initailizing strategy class for " + sf)
     if strategy == "AL" or strategy == "AL_WITHSOFT":
         if sf == "badge" or sf == "badge_withsoft":
@@ -831,6 +816,7 @@ def run_targeted_selection(
             num_cls,
             strategy_args,
         )
+
     if strategy == "random":
         strategy_sel = RandomSampling(
             train_set, unlabeled_lake_set, model, num_cls, strategy_args
@@ -863,7 +849,6 @@ def run_targeted_selection(
     final_val_classifications = []
     final_tst_predictions = []
     final_tst_classifications = []
-
 
     for i in range(num_rounds):
         tst_loss = 0
@@ -926,15 +911,12 @@ def run_targeted_selection(
                     res_dict["test_acc"].append(tst_acc[i] * 100)
                 continue
         else:
-            
-
             # Remove true labels from the unlabeled dataset, the hypothesized labels are computed when select is called
             unlabeled_lake_set = LabeledToUnlabeledDataset(lake_set)
             print(
                 "Started a new AL round, and updating the model, queryset and data(train and unlabeled_set) for strategy "
                 + sf
             )
-            
             strategy_sel.update_data(train_set, unlabeled_lake_set)
             strategy_sel.update_model(model)
 
@@ -1021,7 +1003,7 @@ def run_targeted_selection(
                 subset,classwise_final_indices_simplex = strategy_softsubset.select(budget)
                 classwise_final_indices_simplex_cpu = [
                     (
-                        
+
                         tensor1.clone().cpu().detach(),
                         tensor2.clone().cpu().detach(),
                         class_idx,
@@ -1036,6 +1018,8 @@ def run_targeted_selection(
                 #create a folder to save the simplex plots
                 simplex_dir = (
                     "/home/venkat/trust-wassal/tutorials/results/"
+                    + experiment_name
+                    + "/"
                     + dataset_name
                     + "/"
                     + feature
