@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/wassal/trust-wassal/")
+sys.path.append("/home/venkat/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -475,22 +475,6 @@ def analyze_simplex(args, unlabeled_set, simplex_query):
         total_query_weight += query_weight
     print("Weight of Query samples in simplex_query: {}".format(total_query_weight))
 
-class SubsetWeightedDataset(torch.utils.data.Dataset):
-    def __init__(self, lake_set, indices, targets, simplex_weights):
-        self.lake_set = lake_set
-        self.indices = indices
-        self.targets = targets
-        self.simplex_weights = simplex_weights
-
-    def __len__(self):
-        return len(self.indices)
-
-    def __getitem__(self, idx):
-        lake_idx = self.indices[idx]
-        image = self.lake_set[lake_idx][0]
-        target = self.targets[idx]
-        simplex_weight = self.simplex_weights[idx]
-        return image, target, simplex_weight
 
 class WeightedDataset(Dataset):
     def __init__(self, imgs, targets, simplex_query, private_targets, simplex_private):
@@ -529,8 +513,8 @@ def top_elements_contribute_to_percentage(simplex_query, n_percent, budget):
     total_sum = sum(value for index, value in sorted_simplex)
 
     # If the array doesn't sum up to 1, you might want to handle this case
-    if total_sum != 1:
-        print("Total sum of simplex is", total_sum)
+   # if total_sum != 1:
+   #     print("Total sum of simplex is", total_sum)
 
     target_sum = n_percent / 100.0  # Convert percentage to fraction
     cumulative_sum = 0
@@ -568,14 +552,14 @@ learning_rate = 0.0003
 computeClassErrorLog = True
 if __name__ == "__main__":
     # Accept skip_strategies and skip_budgets from command line arguments
-    
+    experiment_name=sys.argv[5]
     device_id = int(sys.argv[4])
     print('setting deviceid to',str(device_id))
 else:
     device_id=1
     print('setting deviceid to default',str(device_id))
 
-device = "cuda:" if torch.cuda.is_available() else "cpu"
+device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
 miscls = False  # Set to True if only the misclassified examples from the imbalanced classes is to be used
 
 num_cls = 10
@@ -655,6 +639,7 @@ def run_targeted_selection(
     strategy="SIM",
     sf="",
     embedding_type="features",
+    soft_loss_hyperparam="3"
 ):
     # load the dataset in the class imbalance setting
     train_set, val_set, test_set, lake_set, sel_cls_idx, num_cls = load_dataset_custom(
@@ -706,6 +691,8 @@ def run_targeted_selection(
     # Results logging file
     all_logs_dir = (
         "/home/venkat/trust-wassal/tutorials/results/"
+        + experiment_name
+        + "/"
         + dataset_name
         + "/"
         + feature
@@ -757,9 +744,10 @@ def run_targeted_selection(
         "embedding_type": embedding_type,
         "keep_embedding": True,
         "lr": 0.8,
-        "iterations": 30,
-        "step_size": 15,
+        "ds": 15,
+        "step_size": 3,
         "min_iteration": 5,
+        
     }
     unlabeled_lake_set = LabeledToUnlabeledDataset(lake_set)
     if "WITHSOFT" in strategy or strategy == "WASSAL":
@@ -836,10 +824,10 @@ def run_targeted_selection(
         )
     if strategy == "WASSAL" or strategy == "WASSAL_WITHSOFT":
         #soft is also the strategy_sel for wassal
-
-        
-        strategy_sel = strategy_softsubset
-
+        for_query_set = getQuerySet(train_set, sel_cls_idx, recipe="asis")
+        strategy_sel = WASSAL_Multiclass(
+            train_set, unlabeled_lake_set, for_query_set, model, num_cls, strategy_args
+        )
     if strategy == "WASSAL_P" or strategy == "WASSAL_P_WITHSOFT":
         for_query_set = getQuerySet(train_set, sel_cls_idx)
         for_private_set = getPrivateSet(train_set, sel_cls_idx)
@@ -997,7 +985,7 @@ def run_targeted_selection(
                 val_csvlog.append([100 - x for x in val_err_log])
 
             #update softsubset model and query if WITHSOFT for WASSAL its already done
-            if "WITHSOFT" in strategy and "WASSAL" not in strategy:
+            if "WITHSOFT" in strategy or strategy=="WASSAL":
                 print(
                     "Updating softsoft data, queryset and model for strategy " + sf,
                 )
@@ -1034,7 +1022,9 @@ def run_targeted_selection(
                 ]
                 #create a folder to save the simplex plots
                 simplex_dir = (
-                    "/home/wassal/trust-wassal/tutorials/results/"
+                    "/home/venkat/trust-wassal/tutorials/results/"
+                    + experiment_name
+                    + "/"
                     + dataset_name
                     + "/"
                     + feature
@@ -1047,6 +1037,7 @@ def run_targeted_selection(
                     +"/"
                     +str(run)                
                     + "/simplex_viz/al_round_"
+                    +"/simplex/"
                     +str(i)
                     
                 )
@@ -1103,40 +1094,95 @@ def run_targeted_selection(
             
             #preparing weighted loader for weighted training
             if 'WITHSOFT' in strategy:
-                torch.cuda.empty_cache() 
-                all_indices = []
-                all_targets = []
-                all_simplex_weights = []
-
-                for (simplex_query, simplex_refrain, class_idx) in classwise_final_indices_simplex:
-                    targets = torch.full((len(lake_set),), class_idx, dtype=torch.long)
-                    sofftsimplex_query = simplex_query.detach().cpu().numpy()
                     
-                    ss_budget = int(len(unlabeled_lake_set) / 10)
-                    _, top_n_indices = top_elements_contribute_to_percentage(sofftsimplex_query, ss_max_budget_percentage, ss_budget)
+                # Aggregation lists
+                all_small_images = []
+                all_small_targets = []
+                all_small_simplex_query = []
+                all_small_refrain_images = []
+                all_small_refrain_targets = []
+                all_small_simplex_refrain = []
+                all_soft_selected_indices = []
+                for (
+                   
+                    simplex_query,
+                    simplex_refrain,
+                    class_idx,
+                ) in classwise_final_indices_simplex:
+                    # Extract images and targets from weighted_lake_set
+                    images = [lake_set[i][0] for i in range(len(lake_set))]
+                    targets = torch.tensor(class_idx)
+                    targets_refrain = torch.tensor(class_idx)
+                    targets = targets.repeat(len(lake_set))
+                    targets_refrain = targets_refrain.repeat(len(lake_set))
+                    sofftsimplex_query = simplex_query.detach().cpu().numpy()
+                    softsimplex_refrain = simplex_refrain.detach().cpu().numpy()
+                    ss_budget =len(sofftsimplex_query)
+                    # choose the top simplex_query that contributes 30% to the size of that class in trainset
+                    _, top_n_indices = top_elements_contribute_to_percentage(
+                        sofftsimplex_query, ss_max_budget_percentage, ss_budget
+                    )
 
-                    all_indices.extend(top_n_indices)
-                    all_targets.extend(targets[top_n_indices].tolist())
-                    all_simplex_weights.extend((sofftsimplex_query[top_n_indices] / sofftsimplex_query[top_n_indices].sum()).tolist())
-                
+                    (
+                        _,
+                        top_n_refrain_indices,
+                    ) = top_elements_contribute_to_percentage(
+                        softsimplex_refrain, ss_max_budget_percentage, ss_budget
+                    )
+                    all_soft_selected_indices += top_n_indices
+                    # Collect the data
+                    all_small_images += [images[i] for i in top_n_indices]
+                    all_small_refrain_images += [
+                        images[i] for i in top_n_refrain_indices
+                    ]
+                    all_small_targets += targets[top_n_indices.copy()].tolist()
+                    all_small_refrain_targets += targets_refrain[
+                        top_n_refrain_indices.copy()
+                    ].tolist()
+                    softsimplex_query_normed = sofftsimplex_query[top_n_indices] / (
+                        sofftsimplex_query[top_n_indices].sum()
+                    )
+                    all_small_simplex_query += sofftsimplex_query[
+                        top_n_indices
+                    ].tolist()
+                    softsimplex_refrain_normed = softsimplex_refrain[
+                        top_n_refrain_indices
+                    ] / (softsimplex_refrain[top_n_refrain_indices].sum())
+                    all_small_simplex_refrain += softsimplex_refrain_normed.tolist()
+                    
+                #print the size of simplex_query for given strategy and budget
+                print("size of simplex_query for strategy "+sf+" and budget "+str(budget)+" is "+str(len(all_small_simplex_query))+"in round "+str(i))
+
                 # Convert lists to tensors
-                all_targets = torch.tensor(all_targets)
-                all_simplex_weights = torch.tensor(all_simplex_weights)
+                all_small_targets = torch.tensor(all_small_targets)
+                all_small_refrain_targets = torch.tensor(all_small_refrain_targets)
+                all_small_simplex_query = torch.tensor(all_small_simplex_query)
+                all_small_simplex_refrain = torch.tensor(all_small_simplex_refrain)
 
-                # Create the weighted dataset using the SubsetWeightedDataset
-                weighted_lake_set = SubsetWeightedDataset(lake_set, all_indices, all_targets, all_simplex_weights)
-
+                # Form the combined weighted dataset
+                weighted_lake_set = WeightedDataset(
+                    all_small_images,
+                    all_small_targets,
+                    all_small_simplex_query,
+                    None,
+                    None,
+                )
+                weighted_refrain_lake_set = WeightedDataset(
+                    all_small_refrain_images,
+                    all_small_refrain_targets,
+                    all_small_simplex_refrain,
+                    None,
+                    None,
+                )
                 # Load into a dataloader
                 weighted_lakeloader = torch.utils.data.DataLoader(
                     weighted_lake_set,
                     batch_size=trn_batch_size,
                     shuffle=True,
-                    pin_memory=False,
+                    pin_memory=True,
                 )
 
-                # print the size of simplex_query for the given strategy and budget
-                print(f"size of simplex_query for strategy {strategy} and budget {budget} is {len(all_indices)} in round {i}")
-
+                
             
            
             
@@ -1175,13 +1221,10 @@ def run_targeted_selection(
             num_ep = 1
             #         while(num_ep<150):
             # first train until full training accuracy is 0.99
-            full_trn_loss = 0
-            full_trn_correct = 0
-            full_trn_total = 0
             while full_trn_acc[i] < 0.99 and num_ep < 100:
-                total_soft_loss = 0.0
-                total_hard_loss = 0.0
-                soft_loss_weight = 3  # The weight for soft loss
+                loss=0.0
+                soft_loss=0.0
+                hard_loss=0.0               
                 model.train()
                 optimizer.zero_grad()
                 
@@ -1190,38 +1233,48 @@ def run_targeted_selection(
                     for batch_idx, (
                                 inputs,
                                 targets,
-                                simplex_query
+                                simplex_query,
+                                _,
+                                _,
                             ) in enumerate(weighted_lakeloader):
                                 # Variables in Pytorch are differentiable.
                                 inputs = inputs.to(device)
                                 targets = targets.to(device)
+                                loss= 0.0
                                 simplex_query = simplex_query.to(device)
                                 
                                 
                                 # Forward pass for soft labels
                                 soft_outputs = model(inputs)
                                 
-                                soft_loss = criterion(soft_outputs, targets)
-                                # Weight soft_loss by simplex_query and the soft_loss_weight
-                                weighted_soft_loss = (simplex_query * soft_loss).sum() * soft_loss_weight
-                                weighted_soft_loss.backward()  # Backpropagate the weighted soft loss
-                                total_soft_loss += weighted_soft_loss.item()  # Accumulate the total soft loss
+                                target_loss_per_sample = criterion(soft_outputs, targets)
+                                
+                                soft_loss += (simplex_query * target_loss_per_sample).sum()
                 
                     
                 
                 for batch_idx, (inputs, targets) in enumerate(trainloader):
-                    inputs, targets = inputs.to(device), targets.to(device, non_blocking=True)
+                    inputs, targets = inputs.to(device), targets.to(
+                        device, non_blocking=True
+                    )
+                    # Variables in Pytorch are differentiable.
+                    inputs, target = Variable(inputs), Variable(inputs)
+                    # This will zero out the gradients for this batch.
+
 
                     
 
                     outputs = model(inputs)
-                    hard_loss = criterion(outputs, targets)
-                    hard_loss.backward()  # Backpropagate the hard loss
-                    total_hard_loss += hard_loss.item()  # Accumulate the total hard loss
-
-                print('Softlabels Hard loss, ',total_hard_loss," and soft loss ,",total_soft_loss," soft loss hyperparameter is ",soft_loss_weight)
+                    hard_loss += criterion(outputs, targets)
+                    
                 
+                loss=hard_loss+(soft_loss_hyperparam*soft_loss)
+                loss.backward()
                 optimizer.step()
+                full_trn_loss = 0
+                full_trn_correct = 0
+                full_trn_total = 0
+                
                
 
                 
@@ -1349,21 +1402,13 @@ def run_targeted_selection(
     print_final_results(res_dict, sel_cls_idx)
     print("Total gain in accuracy: ", res_dict["test_acc"][i] - res_dict["test_acc"][0])
     
-    if "WITHSOFT" in strategy:
-        #push message to url with AL and budget as title
-        try:
-            requests.get('https://wirepusher.com/send?id=hbBompXx6&title=CIFAR10,'+sf+'_'+str(bud)+'&message=Its run in Devasena. gain is ',str(res_dict["test_acc"][i] - res_dict["test_acc"][0]))
-        except:
-            print("error in sending message")
-#     tsne_plt.show()
+
 
 
 # %%
-experiments = ["exp1", "exp2","exp3"]
+experiments = ["exp2", "exp3", "exp4", "exp5"]
 seeds = [42, 43, 44, 45, 46]
-budgets = [25,50,75,100, 200]
-
-device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
+budgets = [25,50,100,150,175, 200]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
@@ -1420,7 +1465,10 @@ device = "cuda:" + str(device_id) if torch.cuda.is_available() else "cpu"
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/wassal/trust-wassal/tutorials/results/"
+    "/home/venkat/trust-wassal/tutorials/results/"
+    + experiment_name
+    + "/"
+    
     + data_name
     + "_"
     + model_name
@@ -1428,18 +1476,19 @@ initModelPath = (
     + embedding_type
     + "_"
     + str(learning_rate)
-    + "_"
-    + str(split_cfg["sel_cls_idx"])
+    
 )
 #skip strategies that are already run
 skip_strategies = []
 skip_budgets = []
+soft_loss_hyperparam=3
 
 if __name__ == "__main__":
     # Accept skip_strategies and skip_budgets from command line arguments
     skip_strategies = sys.argv[1].split()
     skip_methods= sys.argv[2].split()
     skip_budgets = list(map(int, sys.argv[3].split()))
+    soft_loss_hyperparam=float(sys.argv[6])
 
 # Model Creation
 model = create_model(model_name, num_cls, device, embedding_type)
@@ -1459,7 +1508,7 @@ strategies = [
     ("AL_WITHSOFT", "margin_withsoft"),
     ("random", "random"),
     ("AL", "badge"),
-    ("AL_WITHSOFT", "badge_withsoft"),
+    ("AL", "badge_withsoft"),
     ("AL_WITHSOFT", "us_withsoft"),
     ("AL", "us"),
    
@@ -1496,4 +1545,5 @@ for i, experiment in enumerate(experiments):
                 strategy,
                 method,
                 embedding_type,
+                soft_loss_hyperparam
             )
