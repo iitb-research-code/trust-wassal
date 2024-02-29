@@ -1398,7 +1398,7 @@ budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
-# initModelPath = "/home/wassal/trust-wassal/tutorials/results/"+data_name + "_" + model_name+"_"+embedding_type + "_" + str(learning_rate) + "_" + str(split_cfg["sel_cls_idx"])
+# initModelPath = "/home/venkatapathy/trust-wassal/tutorials/results/"+data_name + "_" + model_name+"_"+embedding_type + "_" + str(learning_rate) + "_" + str(split_cfg["sel_cls_idx"])
 #  # Model Creation
 # model = create_model(model_name, num_cls, device, embedding_type)
 # #List of strategies
