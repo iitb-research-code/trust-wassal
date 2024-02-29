@@ -447,7 +447,7 @@ def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_nam
         
         # Update the simplex values dictionary
         simplex_values_dict[class_idx] = simplex_query.numpy()
-        
+
          # Iterate over lake_set and store relevant data
     for idx, real_class in enumerate(lake_set.targets):
         simplex_value_0 = simplex_values_dict[0][idx]
@@ -1524,7 +1524,7 @@ for i, experiment in enumerate(experiments):
         # Loop through each strategy
         for strategy, method in strategies:
             #skip strategies that are already run
-            if strategy in skip_strategies and b in skip_budgets:
+            if strategy in skip_strategies:
                 continue
             if method in skip_methods and b in skip_budgets:
                 continue
