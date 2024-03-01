@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for pneumonia
-base_dir = "/home/venkat/trust-wassal/tutorials/results/onlyal/pneumoniamnist/classimb/rounds"+str(rounds)
+base_dir = "/home/venkat/trust-wassal/tutorials/results/inpaper/pneumoniamnist/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 filename = "output_statistics_pneumo_vanilla"
@@ -185,14 +185,14 @@ def generate_latex_table(data):
     table += "\\begin{scriptsize}\n"
     table += "\\begin{tabular}{|l|*{%d}{c|}}\n" % len(budgets)
     table += "\\hline\n"
-    table += "Strategy (withsoft) & " + " & ".join(map(str, budgets)) + " \\\\\n"
+    table += "Strategy & " + " & ".join(map(str, budgets)) + " \\\\\n"
     table += "\\hline\n"
     table += "\\hline\n"
 
     for strategy in main_strategies:
         formatted_strategy = strategy.replace("_", "\\_")
-        if 'withsoft' not in strategy:
-            formatted_strategy += " (withsoft)"
+        #if 'withsoft' not in strategy:
+            #formatted_strategy += " (withsoft)"
         row_data = [formatted_strategy]
         for budget in budgets:
             normal_subset = data[(data['Strategy'] == strategy) & (data['Budget'] == budget)]
