@@ -767,9 +767,9 @@ def run_targeted_selection(
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.8,
+        "lr": 0.01,
         "ds": 15,
-        "step_size": 3,
+        "step_size": 10,
         "min_iteration": 5,
     }
     unlabeled_lake_set = LabeledToUnlabeledDataset(lake_set)
@@ -1425,7 +1425,7 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp2", "exp3", "exp4", "exp5"]
+experiments = ["exp1"]
 seeds = [42, 43, 44, 45, 46]
 budgets = [25,50,100,150,175, 200]
 
