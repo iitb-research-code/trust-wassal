@@ -198,7 +198,7 @@ class WASSAL_Multiclass(Strategy):
         
         #multiclass selection
         #if self.args has iterations, use that else use 100
-        iterations = self.args['iterations'] if 'iterations' in self.args else 100
+        iterations = self.args['wassal_iterations'] if 'wassal_iterations' in self.args else 100
         
        
 

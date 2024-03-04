@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for pneumonia
-base_dir = "/home/venkat/trust-wassal/tutorials/results/inpaper/pneumoniamnist/classimb/rounds"+str(rounds)
+base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/pneumoniamnist/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 filename = "output_statistics_pneumo_vanilla"

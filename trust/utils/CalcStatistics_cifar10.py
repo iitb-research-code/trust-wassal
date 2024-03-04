@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for cifar10
-base_dir = "/home/venkat/trust-wassal/tutorials/results/inpaper/cifar10/classimb/rounds"+str(rounds)
+base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/cifar10/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [25,50,100,150,175, 200]
 filename = "output_statistics_cifar10_vanilla"

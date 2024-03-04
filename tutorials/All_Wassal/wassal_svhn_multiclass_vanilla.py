@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/venkat/trust-wassal/")
+sys.path.append("/home/venkatapathy/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/venkat/distil")
+sys.path.append("/home/venkatapathy/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
@@ -690,7 +690,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/venkat/trust-wassal/tutorials/results/"
+        "/home/venkatapathy/trust-wassal/tutorials/results/"
         + experiment_name
         + "/"
         + dataset_name
@@ -744,7 +744,7 @@ def run_targeted_selection(
         "embedding_type": embedding_type,
         "keep_embedding": True,
         "lr": 0.8,
-        "ds": 15,
+        "wassal_iterations": 100,
         "step_size": 3,
         "min_iteration": 5,
         
@@ -1022,7 +1022,7 @@ def run_targeted_selection(
                 ]
                 #create a folder to save the simplex plots
                 simplex_dir = (
-                    "/home/venkat/trust-wassal/tutorials/results/"
+                    "/home/venkatapathy/trust-wassal/tutorials/results/"
                     + experiment_name
                     + "/"
                     + dataset_name
@@ -1465,7 +1465,7 @@ budgets = [25,50,100,150,175, 200]
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/venkat/trust-wassal/tutorials/results/"
+    "/home/venkatapathy/trust-wassal/tutorials/results/"
     + experiment_name
     + "/"
     

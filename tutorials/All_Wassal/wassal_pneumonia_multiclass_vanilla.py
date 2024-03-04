@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/venkat/trust-wassal/")
+sys.path.append("/home/venkatapathy/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/venkat/distil")
+sys.path.append("/home/venkatapathy/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
@@ -694,7 +694,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/venkat/trust-wassal/tutorials/results/"
+        "/home/venkatapathy/trust-wassal/tutorials/results/"
         + experiment_name
         + "/"
         + dataset_name
@@ -747,9 +747,9 @@ def run_targeted_selection(
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.01,
-        "ds": 15,
-        "step_size": 25,
+        "lr": 0.1,
+        "wassal_iterations": 50,
+        "step_size": 10,
         "min_iteration": 5,
     }
     unlabeled_lake_set = LabeledToUnlabeledDataset(lake_set)
@@ -1022,7 +1022,7 @@ def run_targeted_selection(
                 ]
                 #create a folder to save the simplex plots
                 simplex_dir = (
-                    "/home/venkat/trust-wassal/tutorials/results/"
+                    "/home/venkatapathy/trust-wassal/tutorials/results/"
                     + experiment_name
                     + "/"
                     + dataset_name
@@ -1408,7 +1408,7 @@ budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
-# initModelPath = "/home/venkatapathy/trust-wassal/tutorials/results/"+data_name + "_" + model_name+"_"+embedding_type + "_" + str(learning_rate) + "_" + str(split_cfg["sel_cls_idx"])
+# initModelPath = "/home/venkatapathyapathy/trust-wassal/tutorials/results/"+data_name + "_" + model_name+"_"+embedding_type + "_" + str(learning_rate) + "_" + str(split_cfg["sel_cls_idx"])
 #  # Model Creation
 # model = create_model(model_name, num_cls, device, embedding_type)
 # #List of strategies
@@ -1461,7 +1461,7 @@ budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/venkat/trust-wassal/tutorials/results/"
+    "/home/venkatapathy/trust-wassal/tutorials/results/"
     + experiment_name
     + "/"
     + data_name

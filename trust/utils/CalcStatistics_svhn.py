@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for svhn
-base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/svhn/classimb/rounds"+str(rounds)
+base_dir = "/home/venkatapathyapathy/trust-wassal/tutorials/results/svhn/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [50,75,100,200]
 filename = "output_statistics_svhn_vanilla"
