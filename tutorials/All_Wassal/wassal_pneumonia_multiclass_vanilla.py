@@ -448,12 +448,11 @@ def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_nam
         # Update the simplex values dictionary
         simplex_values_dict[class_idx] = simplex_query.numpy()
 
-         # Iterate over lake_set and store relevant data
+    num_classes = 2  # replace with the actual number of classes
     for idx, real_class in enumerate(lake_set.targets):
-        simplex_value_0 = simplex_values_dict[0][idx]
-        simplex_value_1 = simplex_values_dict[1][idx]
-        if simplex_value_0 != 0 or simplex_value_1 != 0:
-            data_to_store.append((real_class, simplex_value_0, simplex_value_1))
+        values = [simplex_values_dict[i][idx] for i in range(num_classes)]
+        if any(value != 0 for value in values):
+            data_to_store.append((real_class, *values))
 
     # Serialize and save the data to CSV
     data_file_path = os.path.join(folder_name, "simplex_data.csv")

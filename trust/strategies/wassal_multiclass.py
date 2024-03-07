@@ -307,22 +307,43 @@ class WASSAL_Multiclass(Strategy):
         #once iterations are over or loss is less than 1, return the necessary indices
         
 
-        # 1. Aggregate Maximum Values Across Classes
-        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        for classwise_simplex in classwise_simplex_query:
-            max_across_classes = torch.max(max_across_classes, classwise_simplex)
+        # # 1. Aggregate Maximum Values Across Classes
+        # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        # for classwise_simplex in classwise_simplex_query:
+        #     max_across_classes = torch.max(max_across_classes, classwise_simplex)
 
-        # 2. Select Least Non-Zero Values
-        non_zero_indices = torch.nonzero(max_across_classes).squeeze()
-        sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+        # # 2. Select Least Non-Zero Values
+        # non_zero_indices = torch.nonzero(max_across_classes).squeeze()
+        # sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
+
+        # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
+        sum_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        non_zero_counts = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+
+        for classwise_simplex in classwise_simplex_query:
+            sum_across_classes += classwise_simplex
+            non_zero_counts += (classwise_simplex != 0).float()
+
+        # Avoid division by zero
+        non_zero_counts = torch.where(non_zero_counts != 0, non_zero_counts, torch.ones_like(non_zero_counts))
+        average_across_classes = sum_across_classes / non_zero_counts
+
+        # 2. Select Minimum Values
+        non_zero_indices = torch.nonzero(average_across_classes).squeeze()
+        sorted_values, sorted_indices = torch.sort(average_across_classes[non_zero_indices])
         original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
+
 
         selected_indices = []
         selected_indices_set = set()
         for idx in original_indices:
             if len(selected_indices) >= budget:
                 break
-            if idx not in selected_indices_set and max_across_classes[idx] > 0:
+            #for max
+            #if idx not in selected_indices_set and max_across_classes[idx] > 0:
+            #for average
+            if idx not in selected_indices_set:
                 selected_indices.append(idx)
                 selected_indices_set.add(idx)
 
@@ -576,22 +597,46 @@ class WASSAL_Multiclass(Strategy):
                 
         #once iterations are over or loss is less than 1, return the necessary indices
         
- # 1. Aggregate Maximum Values Across Classes
-        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        for classwise_simplex in classwise_simplex_query:
-            max_across_classes = torch.max(max_across_classes, classwise_simplex)
+ #once iterations are over or loss is less than 1, return the necessary indices
+        
 
-        # 2. Select Least Non-Zero Values
-        non_zero_indices = torch.nonzero(max_across_classes).squeeze()
-        sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+        # # 1. Aggregate Maximum Values Across Classes
+        # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        # for classwise_simplex in classwise_simplex_query:
+        #     max_across_classes = torch.max(max_across_classes, classwise_simplex)
+
+        # # 2. Select Least Non-Zero Values
+        # non_zero_indices = torch.nonzero(max_across_classes).squeeze()
+        # sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
+
+        # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
+        sum_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        non_zero_counts = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+
+        for classwise_simplex in classwise_simplex_query:
+            sum_across_classes += classwise_simplex
+            non_zero_counts += (classwise_simplex != 0).float()
+
+        # Avoid division by zero
+        non_zero_counts = torch.where(non_zero_counts != 0, non_zero_counts, torch.ones_like(non_zero_counts))
+        average_across_classes = sum_across_classes / non_zero_counts
+
+        # 2. Select Minimum Values
+        non_zero_indices = torch.nonzero(average_across_classes).squeeze()
+        sorted_values, sorted_indices = torch.sort(average_across_classes[non_zero_indices])
         original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
+
 
         selected_indices = []
         selected_indices_set = set()
         for idx in original_indices:
             if len(selected_indices) >= budget:
                 break
-            if idx not in selected_indices_set and max_across_classes[idx] > 0:
+            #for max
+            #if idx not in selected_indices_set and max_across_classes[idx] > 0:
+            #for average
+            if idx not in selected_indices_set:
                 selected_indices.append(idx)
                 selected_indices_set.add(idx)
 

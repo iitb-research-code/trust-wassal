@@ -385,57 +385,80 @@ def getPerClassSel(lake_set, subset, num_cls):
 
 
 def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_name):
-    # Plot the distribution of the simplex query colorcoded based on the true labels
+    # Ensure folder exists
+    os.makedirs(folder_name, exist_ok=True)
+    # Plot the distribution of the simplex query colorcoded based odn the true labels
+    # Data storage structure
+    data_to_store = []
+    # Dictionary to track simplex values for each class
+    simplex_values_dict = {0: np.zeros(len(lake_set)), 1: np.zeros(len(lake_set))}
+
     for simplex_query, simplex_refrain, class_idx in classwise_final_indices_simplex:
-        # Determine histogram bin edges
-        counts, bin_edges = np.histogram(simplex_query, bins=10)
+        # # Determine histogram bin edges
+        # counts, bin_edges = np.histogram(simplex_query, bins=10)
 
-        # Create a color map for your targets
-        unique_targets = np.unique(lake_set.targets)
-        colors = plt.cm.jet(np.linspace(0, 1, len(unique_targets)))
-        color_map = {target: color for target, color in zip(unique_targets, colors)}
+        # # Create a color map for your targets
+        # unique_targets = np.unique(lake_set.targets)
+        # colors = plt.cm.jet(np.linspace(0, 1, len(unique_targets)))
+        # color_map = {target: color for target, color in zip(unique_targets, colors)}
 
-        # Prepare bin data to color based on target
-        bin_data = {target: [] for target in unique_targets}
+        # # Prepare bin data to color based on target
+        # bin_data = {target: [] for target in unique_targets}
 
-        for i in range(len(bin_edges) - 1):
-            bin_mask = (simplex_query >= bin_edges[i]) & (
-                simplex_query < bin_edges[i + 1]
-            )
-            bin_targets = np.array(lake_set.targets)[bin_mask]
-            for target in unique_targets:
-                count_target = np.sum(bin_targets == target)
-                # Add the count to the bin_data if it's less than or equal to 100
-                if count_target <= 200:
-                    bin_data[target].append(count_target)
-                else:
-                    bin_data[target].append(0)
+        # for i in range(len(bin_edges) - 1):
+        #     bin_mask = (simplex_query >= bin_edges[i]) & (
+        #         simplex_query < bin_edges[i + 1]
+        #     )
+        #     bin_targets = np.array(lake_set.targets)[bin_mask]
+        #     for target in unique_targets:
+        #         count_target = np.sum(bin_targets == target)
+        #         # Add the count to the bin_data if it's less than or equal to 100
+        #         if count_target <= 200:
+        #             bin_data[target].append(count_target)
+        #         else:
+        #             bin_data[target].append(0)
 
-        # Plot
-        plt.figure(figsize=(10, 5))
-        bottom = np.zeros(len(bin_edges) - 1)
-        for target, counts in bin_data.items():
-            plt.bar(
-                bin_edges[:-1],
-                counts,
-                width=np.diff(bin_edges),
-                align="edge",
-                label=str(target),
-                bottom=bottom,
-                color=color_map[target],
-            )
-            bottom += counts
+        # # Plot
+        # plt.figure(figsize=(10, 5))
+        # bottom = np.zeros(len(bin_edges) - 1)
+        # for target, counts in bin_data.items():
+        #     plt.bar(
+        #         bin_edges[:-1],
+        #         counts,
+        #         width=np.diff(bin_edges),
+        #         align="edge",
+        #         label=str(target),
+        #         bottom=bottom,
+        #         color=color_map[target],
+        #     )
+        #     bottom += counts
 
-        plt.title(
-            "Distributions of the simplex query for hypothesised Class: "
-            + str(class_idx)
-        )
-        plt.xlabel("Query values")
-        plt.ylabel("Frequency")
-        plt.legend(title="Targets", bbox_to_anchor=(1.05, 1), loc="upper left")
-        plt.tight_layout()
-        plt.savefig(os.path.join(folder_name,"svhn_simplex_distribution_class_{}.png".format(class_idx)))
-        plt.close()
+        # plt.title(
+        #     "Distributions of the simplex query for hypothesised Class: "
+        #     + str(class_idx)
+        # )
+        # plt.xlabel("Query values")
+        # plt.ylabel("Frequency")
+        # plt.legend(title="Targets", bbox_to_anchor=(1.05, 1), loc="upper left")
+        # plt.tight_layout()
+        # plt.savefig(os.path.join(folder_name,"cifar10_simplex_distribution_class_{}.png".format(class_idx)))
+        # plt.close()
+        
+        # Update the simplex values dictionary
+        simplex_values_dict[class_idx] = simplex_query.numpy()
+    num_classes = 10  # replace with the actual number of classes
+    for idx, real_class in enumerate(lake_set.targets):
+        values = [simplex_values_dict[i][idx] for i in range(num_classes)]
+        if any(value != 0 for value in values):
+            data_to_store.append((real_class, *values))
+
+    # Serialize and save the data to CSV
+    data_file_path = os.path.join(folder_name, "simplex_data.csv")
+    with open(data_file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Real Class', 'Hypothesized Class', 'Simplex Value'])
+        writer.writerows(data_to_store)
+
 
 
 def print_final_results(res_dict, sel_cls_idx):
