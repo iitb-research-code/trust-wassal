@@ -39,6 +39,6 @@ def read_csv_and_calculate_accuracy(wassal_path):
     return accuracy_df
 
 # Example usage
-wassal_path = '/home/venkatapathy/trust-wassal/tutorials/results/onlywassal/pneumoniamnist/classimb/rounds10/WASSAL'
+wassal_path = '/home/venkatapathy/trust-wassal/tutorials/results/onlywassal/cifar10/classimb/rounds10/WASSAL'
 accuracy_df = read_csv_and_calculate_accuracy(wassal_path)
 print(accuracy_df)
