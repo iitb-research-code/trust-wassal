@@ -311,7 +311,7 @@ class WASSAL_Multiclass(Strategy):
 
         # 2. Sort in Descending Order and Select Top 'budget' Indices
         _, top_indices = torch.sort(all_simplex_values, descending=True)
-        selected_flat_indices = top_indices[:budget]
+        selected_flat_indices = top_indices[:budget].cpu()
 
         # 3. Map Back to Original Indices and Class Labels
         selected_indices = []
@@ -336,8 +336,10 @@ class WASSAL_Multiclass(Strategy):
             output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
 
         torch.cuda.empty_cache()
-        return selected_indices, output
-        # # 1. Aggregate Maximum Values Across Classes
+        # Convert selected_indices to an array
+        selected_indices_array = np.array(selected_indices)     
+        return selected_indices_array, output
+        # 1. Aggregate Maximum Values Across Classes
         # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
         # for classwise_simplex in classwise_simplex_query:
         #     max_across_classes = torch.max(max_across_classes, classwise_simplex)
@@ -347,7 +349,7 @@ class WASSAL_Multiclass(Strategy):
         # sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
         # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
 
-        # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
+        # # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
         # sum_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
         # non_zero_counts = torch.zeros(len(self.unlabeled_dataset), device=self.device)
 
@@ -410,6 +412,7 @@ class WASSAL_Multiclass(Strategy):
         
         
         # torch.cuda.empty_cache()
+        
         # return selected_indices,output
 
 
@@ -632,7 +635,7 @@ class WASSAL_Multiclass(Strategy):
 
         # 2. Sort in Descending Order and Select Top 'budget' Indices
         _, top_indices = torch.sort(all_simplex_values, descending=True)
-        selected_flat_indices = top_indices[:budget]
+        selected_flat_indices = top_indices[:budget].cpu()
 
         # 3. Map Back to Original Indices and Class Labels
         selected_indices = []
@@ -657,7 +660,8 @@ class WASSAL_Multiclass(Strategy):
             output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
 
         torch.cuda.empty_cache()
-        return selected_indices, output
+        selected_indices_array = np.array(selected_indices)     
+        return selected_indices_array, output
         # # 1. Aggregate Maximum Values Across Classes
         # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
         # for classwise_simplex in classwise_simplex_query:
