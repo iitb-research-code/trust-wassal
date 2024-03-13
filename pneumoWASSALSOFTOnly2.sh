@@ -6,4 +6,4 @@ DEVICE_ID="2"
 EXPERIMENT_NAME="onlywassal"
 SOFT_LOSS_HYPERPARAM="0.3"
 python3 -u tutorials/All_Wassal/wassal_pneumonia_multiclass_vanilla.py "$SKIP_STRATEGIES" "$SKIP_METHODS" "$SKIP_BUDGETS" "$DEVICE_ID" "$EXPERIMENT_NAME" "$SOFT_LOSS_HYPERPARAM" 2>&1 | tee tutorials/results/onlywassal/pneumowassalsoft2.log
-python3 informme.py
+python3 informme.py "psw2"

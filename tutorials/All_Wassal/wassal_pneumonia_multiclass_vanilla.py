@@ -1116,7 +1116,7 @@ def run_targeted_selection(
                     targets_refrain = targets_refrain.repeat(len(lake_set))
                     sofftsimplex_query = simplex_query.detach().cpu().numpy()
                     softsimplex_refrain = simplex_refrain.detach().cpu().numpy()
-                    ss_budget =len(sofftsimplex_query)
+                    ss_budget =500
                     # choose the top simplex_query that contributes 30% to the size of that class in trainset
                     _, top_n_indices = top_elements_contribute_to_percentage(
                         sofftsimplex_query, ss_max_budget_percentage, ss_budget

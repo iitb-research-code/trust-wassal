@@ -28,7 +28,7 @@ filename = "output_statistics_pneumo_vanilla"
 strategies = ['WASSAL_WITHSOFT','WASSAL','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
 strategy_group="AL_WITHSOFT"
 
-experiments=['exp1']
+experiments=['exp1','exp2','exp3']
 #experiments=['exp2','exp3']
 
 # Prepare the CSV file for saving stats

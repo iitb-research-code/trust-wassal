@@ -258,9 +258,7 @@ def aug_train_subset(
         )
     #print(len(lake_ss),len(remain_lake_set),len(lake_set))
     aug_train_set = ConcatWithTargets(train_set, lake_ss)
-    aug_trainloader = torch.utils.data.DataLoader(
-        train_set, batch_size=1000, shuffle=True, pin_memory=False
-    )
+  
     return aug_train_set, remain_lake_set, remain_true_lake_set, lake_ss
 
 
@@ -1137,7 +1135,9 @@ def run_targeted_selection(
                     targets_refrain = targets_refrain.repeat(len(lake_set))
                     sofftsimplex_query = simplex_query.detach().cpu().numpy()
                     softsimplex_refrain = simplex_refrain.detach().cpu().numpy()
-                    ss_budget =len(sofftsimplex_query)
+                    ss_budget =400
+                    #print the size of softsimplex_query for given strategy and budget
+                    print("size of softsimplex_query for strategy "+sf+" and budget "+str(budget)+" is "+str(len(sofftsimplex_query))+"in round "+str(i))
                     # choose the top simplex_query that contributes 30% to the size of that class in trainset
                     _, top_n_indices = top_elements_contribute_to_percentage(
                         sofftsimplex_query, ss_max_budget_percentage, ss_budget
