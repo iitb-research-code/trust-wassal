@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for svhn
-base_dir = "/home/venkatapathyapathy/trust-wassal/tutorials/results/svhn/classimb/rounds"+str(rounds)
+base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/svhn/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
-budgets = [50,75,100,200]
+budgets = [20,50,100,175]
 filename = "output_statistics_svhn_vanilla"
 
 #strategies = ["WASSAL", "WASSAL_P", "fl1mi", "fl2mi", "gcmi", "logdetmi", "random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","logdetcmi","flcmi","margin"]
@@ -25,11 +25,11 @@ filename = "output_statistics_svhn_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSAL_withsoft','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
+strategies = ['WASSAL_WITHSOFT','WASSAL','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
 
-experiments=['exp2','exp3']
+experiments=['exp1']
 
 # Prepare the CSV file for saving stats
 output_path = os.path.join(base_dir, filename+"_group_"+strategy_group+"_rounds_"+str(rounds))

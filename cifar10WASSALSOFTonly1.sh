@@ -3,8 +3,8 @@
 # Define the skip_strategies and skip_budgets
 SKIP_STRATEGIES="random AL AL_WITHSOFT WASSAL"
 SKIP_METHODS="WASSAL_WITHSOFT"
-SKIP_BUDGETS="75 100 125 150"
-DEVICE_ID="3"
+SKIP_BUDGETS="75 100 125 150 175"
+DEVICE_ID="4"
 EXPERIMENT_NAME="onlywassal"
 SOFT_LOSS_HYPERPARAM="0.3"
 # Call the Python script with the defined arguments

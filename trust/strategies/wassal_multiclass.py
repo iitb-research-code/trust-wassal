@@ -304,26 +304,32 @@ class WASSAL_Multiclass(Strategy):
             if((loss.item()<0.2 and loss.item()>-0.2) and i>min_iteration):
                 break
                 
-        #once iterations are over or loss is less than 1, return the necessary indices
+       
+        # 1. Aggregate Maximum Values Across Classes
+        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        for classwise_simplex in classwise_simplex_query:
+            max_across_classes = torch.max(max_across_classes, classwise_simplex)
+
+        # 2. Select Least Non-Zero Values
+        non_zero_indices = torch.nonzero(max_across_classes).squeeze()
+        sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+      
+
+       
+
+
+        selected_indices = sorted_indices[:budget].cpu().numpy()
         
-        # 1. Flatten and Combine Simplex Values Across Classes
-        all_simplex_values = torch.cat([simplex.flatten() for simplex in classwise_simplex_query])
+        output=[]
+        
+        
 
-        # 2. Sort in Descending Order and Select Top 'budget' Indices
-        _, top_indices = torch.sort(all_simplex_values, descending=True)
-        selected_flat_indices = top_indices[:budget].cpu()
-
-        # 3. Map Back to Original Indices and Class Labels
-        selected_indices = []
-        selected_indices_set = set()
-        for flat_idx in selected_flat_indices:
-            original_idx = flat_idx % len(self.unlabeled_dataset)
-            if original_idx not in selected_indices_set:
-                selected_indices.append(original_idx)
-                selected_indices_set.add(original_idx)
-
-        output = []
-        for iteridx, (class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
+        for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
+            
+            # Get values from simplex_query and plot them
+            #plt.hist(simplex_values, bins=np.linspace(0, max(simplex_values), 50), alpha=0.5, label=f'Class {class_idx}')
+            
+           
             # Mask out the values in simplex_query and simplex_refrain tensors
             # corresponding to selected indices
             masked_simplex_query = simplex_query.clone()
@@ -331,89 +337,17 @@ class WASSAL_Multiclass(Strategy):
             for idx in selected_indices:
                 masked_simplex_query[idx] = 0
                 masked_simplex_refrain[idx] = 0
-
+            
             # Each tuple contains the sorted indices, the simplex_query tensor, and the class_idx
             output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
-
+            # Update the set with the indices selected for the current class
+            
+        
+       
+        
         torch.cuda.empty_cache()
-        # Convert selected_indices to an array
-        selected_indices_array = np.array(selected_indices)     
-        return selected_indices_array, output
-        # 1. Aggregate Maximum Values Across Classes
-        # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        # for classwise_simplex in classwise_simplex_query:
-        #     max_across_classes = torch.max(max_across_classes, classwise_simplex)
-
-        # # 2. Select Least Non-Zero Values
-        # non_zero_indices = torch.nonzero(max_across_classes).squeeze()
-        # sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
-        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
-
-        # # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
-        # sum_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        # non_zero_counts = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-
-        # for classwise_simplex in classwise_simplex_query:
-        #     sum_across_classes += classwise_simplex
-        #     non_zero_counts += (classwise_simplex != 0).float()
-
-        # # Avoid division by zero
-        # non_zero_counts = torch.where(non_zero_counts != 0, non_zero_counts, torch.ones_like(non_zero_counts))
-        # average_across_classes = sum_across_classes / non_zero_counts
-
-        # # 2. Select Minimum Values
-        # non_zero_indices = torch.nonzero(average_across_classes).squeeze()
-        # sorted_values, sorted_indices = torch.sort(average_across_classes[non_zero_indices])
-        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
-
-
-        # selected_indices = []
-        # selected_indices_set = set()
-        # for idx in original_indices:
-        #     if len(selected_indices) >= budget:
-        #         break
-        #     #for max
-        #     #if idx not in selected_indices_set and max_across_classes[idx] > 0:
-        #     #for average
-        #     if idx not in selected_indices_set:
-        #         selected_indices.append(idx)
-        #         selected_indices_set.add(idx)
-
-        # output=[]
         
-        
-
-        # for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
-            
-        #     # Get values from simplex_query and plot them
-        #     #plt.hist(simplex_values, bins=np.linspace(0, max(simplex_values), 50), alpha=0.5, label=f'Class {class_idx}')
-            
-           
-        #     # Mask out the values in simplex_query and simplex_refrain tensors
-        #     # corresponding to selected indices
-        #     masked_simplex_query = simplex_query.clone()
-        #     masked_simplex_refrain = classwise_simplex_refrain[iteridx].clone()
-        #     for idx in selected_indices:
-        #         masked_simplex_query[idx] = 0
-        #         masked_simplex_refrain[idx] = 0
-            
-        #     # Each tuple contains the sorted indices, the simplex_query tensor, and the class_idx
-        #     output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
-        #     # Update the set with the indices selected for the current class
-            
-        
-        # plt.title('Distribution of Simplexes for Each Class')
-        # plt.xlabel('Simplex Value')
-        # plt.ylabel('Count')
-        # plt.legend(loc='upper right')
-        # plt.grid(True)
-        # plt.tight_layout()
-        # plt.savefig('simplex_distribution.png')
-        
-        
-        # torch.cuda.empty_cache()
-        
-        # return selected_indices,output
+        return selected_indices,output
 
 
     def select_for_query_refrain(self, budget):
@@ -630,24 +564,31 @@ class WASSAL_Multiclass(Strategy):
                 
         #once iterations are over or loss is less than 1, return the necessary indices
         
-        # 1. Flatten and Combine Simplex Values Across Classes
-        all_simplex_values = torch.cat([simplex.flatten() for simplex in classwise_simplex_query])
+        # 1. Aggregate Maximum Values Across Classes
+        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        for classwise_simplex in classwise_simplex_query:
+            max_across_classes = torch.max(max_across_classes, classwise_simplex)
 
-        # 2. Sort in Descending Order and Select Top 'budget' Indices
-        _, top_indices = torch.sort(all_simplex_values, descending=True)
-        selected_flat_indices = top_indices[:budget].cpu()
+        # 2. Select Least Non-Zero Values
+        non_zero_indices = torch.nonzero(max_across_classes).squeeze()
+        sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
+      
 
-        # 3. Map Back to Original Indices and Class Labels
-        selected_indices = []
-        selected_indices_set = set()
-        for flat_idx in selected_flat_indices:
-            original_idx = flat_idx % len(self.unlabeled_dataset)
-            if original_idx not in selected_indices_set:
-                selected_indices.append(original_idx)
-                selected_indices_set.add(original_idx)
+       
 
-        output = []
-        for iteridx, (class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
+
+        selected_indices = sorted_indices[:budget].cpu().numpy()
+        
+        output=[]
+        
+        
+
+        for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
+            
+            # Get values from simplex_query and plot them
+            #plt.hist(simplex_values, bins=np.linspace(0, max(simplex_values), 50), alpha=0.5, label=f'Class {class_idx}')
+            
+           
             # Mask out the values in simplex_query and simplex_refrain tensors
             # corresponding to selected indices
             masked_simplex_query = simplex_query.clone()
@@ -655,87 +596,17 @@ class WASSAL_Multiclass(Strategy):
             for idx in selected_indices:
                 masked_simplex_query[idx] = 0
                 masked_simplex_refrain[idx] = 0
-
+            
             # Each tuple contains the sorted indices, the simplex_query tensor, and the class_idx
             output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
-
+            # Update the set with the indices selected for the current class
+            
+        
+       
+        
         torch.cuda.empty_cache()
-        selected_indices_array = np.array(selected_indices)     
-        return selected_indices_array, output
-        # # 1. Aggregate Maximum Values Across Classes
-        # max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        # for classwise_simplex in classwise_simplex_query:
-        #     max_across_classes = torch.max(max_across_classes, classwise_simplex)
-
-        # # 2. Select Least Non-Zero Values
-        # non_zero_indices = torch.nonzero(max_across_classes).squeeze()
-        # sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices])
-        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
-
-        # 1. Sum Values Across Classes and Divide by Number of Non-Zero Values
-        # sum_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-        # non_zero_counts = torch.zeros(len(self.unlabeled_dataset), device=self.device)
-
-        # for classwise_simplex in classwise_simplex_query:
-        #     sum_across_classes += classwise_simplex
-        #     non_zero_counts += (classwise_simplex != 0).float()
-
-        # # Avoid division by zero
-        # non_zero_counts = torch.where(non_zero_counts != 0, non_zero_counts, torch.ones_like(non_zero_counts))
-        # average_across_classes = sum_across_classes / non_zero_counts
-
-        # # 2. Select Minimum Values
-        # non_zero_indices = torch.nonzero(average_across_classes).squeeze()
-        # sorted_values, sorted_indices = torch.sort(average_across_classes[non_zero_indices])
-        # original_indices = [idx % len(self.unlabeled_dataset) for idx in sorted_indices.cpu().numpy().tolist()]
-
-
-        # selected_indices = []
-        # selected_indices_set = set()
-        # for idx in original_indices:
-        #     if len(selected_indices) >= budget:
-        #         break
-        #     #for max
-        #     #if idx not in selected_indices_set and max_across_classes[idx] > 0:
-        #     #for average
-        #     if idx not in selected_indices_set:
-        #         selected_indices.append(idx)
-        #         selected_indices_set.add(idx)
-
-        # output=[]
         
-        
-
-        # for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
-            
-        #     # Get values from simplex_query and plot them
-        #     #plt.hist(simplex_values, bins=np.linspace(0, max(simplex_values), 50), alpha=0.5, label=f'Class {class_idx}')
-            
-           
-        #     # Mask out the values in simplex_query and simplex_refrain tensors
-        #     # corresponding to selected indices
-        #     masked_simplex_query = simplex_query.clone()
-        #     masked_simplex_refrain = classwise_simplex_refrain[iteridx].clone()
-        #     for idx in selected_indices:
-        #         masked_simplex_query[idx] = 0
-        #         masked_simplex_refrain[idx] = 0
-            
-        #     # Each tuple contains the sorted indices, the simplex_query tensor, and the class_idx
-        #     output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
-        #     # Update the set with the indices selected for the current class
-            
-        
-        # plt.title('Distribution of Simplexes for Each Class')
-        # plt.xlabel('Simplex Value')
-        # plt.ylabel('Count')
-        # plt.legend(loc='upper right')
-        # plt.grid(True)
-        # plt.tight_layout()
-        # plt.savefig('simplex_distribution.png')
-        
-        
-        # torch.cuda.empty_cache()
-        # return selected_indices,output
+        return selected_indices,output
 
 
     def select(self, budget):

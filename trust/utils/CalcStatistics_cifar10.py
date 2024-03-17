@@ -25,11 +25,11 @@ filename = "output_statistics_cifar10_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSAL','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
+strategies = ['WASSAL_WITHSOFT','WASSAL','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
 strategy_group="AL_WITHSOFT"
 
 
-experiments=['exp1']
+experiments=['exp1','exp2','exp3']
 
 # Prepare the CSV file for saving stats
 output_path = os.path.join(base_dir, filename+"_group_"+strategy_group+"_rounds_"+str(rounds))
@@ -185,14 +185,14 @@ def generate_latex_table(data):
     table += "\\begin{scriptsize}\n"
     table += "\\begin{tabular}{|l|*{%d}{c|}}\n" % len(budgets)
     table += "\\hline\n"
-    table += "Strategy (withsoft) & " + " & ".join(map(str, budgets)) + " \\\\\n"
+    table += "Strategy & " + " & ".join(map(str, budgets)) + " \\\\\n"
     table += "\\hline\n"
     table += "\\hline\n"
 
     for strategy in main_strategies:
         formatted_strategy = strategy.replace("_", "\\_")
-        if 'withsoft' not in strategy:
-            formatted_strategy += " (withsoft)"
+        # if 'withsoft' not in strategy:
+        #     formatted_strategy += " (withsoft)"
         row_data = [formatted_strategy]
         for budget in budgets:
             normal_subset = data[(data['Strategy'] == strategy) & (data['Budget'] == budget)]
@@ -213,7 +213,7 @@ def generate_latex_table(data):
 
     table += "\\end{tabular}\n"
     table += "\\end{scriptsize}\n"
-    table += "\\caption{Mean Gain for various strategies across budgets for CIFAR1-}\n"
+    table += "\\caption{Mean Gain for various strategies across budgets for CIFAR10}\n"
     table += "\\label{tab:cifar10labels}\n"
     table += "\\end{table*}\n"  # Use table* for spanning two columns
 

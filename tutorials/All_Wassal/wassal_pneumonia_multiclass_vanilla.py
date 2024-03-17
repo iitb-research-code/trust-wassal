@@ -452,13 +452,13 @@ def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_nam
     for idx, real_class in enumerate(lake_set.targets):
         values = [simplex_values_dict[i][idx] for i in range(num_classes)]
         if any(value != 0 for value in values):
-            data_to_store.append((real_class, *values))
+            data_to_store.append((real_class.item(), *values))
 
     # Serialize and save the data to CSV
     data_file_path = os.path.join(folder_name, "simplex_data.csv")
     with open(data_file_path, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['Real Class', 'Hypothesized Class', 'Simplex Value'])
+
         writer.writerows(data_to_store)
 
 def print_final_results(res_dict, sel_cls_idx):
@@ -1399,7 +1399,7 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp1","exp2","exp3"]
+experiments = ["exp1"]
 seeds = [24, 48, 86, 28, 92]
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 #budgets = [100]

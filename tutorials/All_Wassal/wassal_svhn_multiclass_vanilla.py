@@ -448,13 +448,13 @@ def plotsimpelxDistribution(lake_set, classwise_final_indices_simplex,folder_nam
     for idx, real_class in enumerate(lake_set.targets):
         values = [simplex_values_dict[i][idx] for i in range(num_classes)]
         if any(value != 0 for value in values):
-            data_to_store.append((real_class, *values))
+            data_to_store.append((real_class.item(), *values))
 
     # Serialize and save the data to CSV
     data_file_path = os.path.join(folder_name, "simplex_data.csv")
     with open(data_file_path, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['Real Class', 'Hypothesized Class', 'Simplex Value'])
+       
         writer.writerows(data_to_store)
 
 
@@ -764,9 +764,9 @@ def run_targeted_selection(
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.8,
-        "wassal_iterations": 100,
-        "step_size": 3,
+        "lr": 0.01,
+        "wassal_iterations": 50,
+        "step_size": 10,
         "min_iteration": 5,
         
     }
@@ -1228,7 +1228,7 @@ def run_targeted_selection(
 
             #Reinit train and lake loaders with new splits and reinit the model
             trainloader = torch.utils.data.DataLoader(
-                train_set, batch_size=trn_batch_size, shuffle=True, pin_memory=False
+                train_set, batch_size=trn_batch_size, shuffle=True, pin_memory=True
             )
 
             # lakeloader = torch.utils.data.DataLoader(
@@ -1427,9 +1427,9 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp1","exp2","exp3"]
-seeds = [42, 43, 44, 45, 46]
-budgets = [25,50,100,150,175, 200]
+experiments = ["exp1"]
+seeds = [24, 48, 86, 28, 92]
+budgets = [25,50,100,125,150,175]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
@@ -1547,7 +1547,7 @@ for i, experiment in enumerate(experiments):
         # Loop through each strategy
         for strategy, method in strategies:
             #skip strategies that are already run
-            if strategy in skip_strategies and b in skip_budgets:
+            if strategy in skip_strategies:
                 continue
             if method in skip_methods and b in skip_budgets:
                 continue

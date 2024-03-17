@@ -1135,7 +1135,7 @@ def run_targeted_selection(
                     targets_refrain = targets_refrain.repeat(len(lake_set))
                     sofftsimplex_query = simplex_query.detach().cpu().numpy()
                     softsimplex_refrain = simplex_refrain.detach().cpu().numpy()
-                    ss_budget =400
+                    ss_budget =2500
                     #print the size of softsimplex_query for given strategy and budget
                     print("size of softsimplex_query for strategy "+sf+" and budget "+str(budget)+" is "+str(len(sofftsimplex_query))+"in round "+str(i))
                     # choose the top simplex_query that contributes 30% to the size of that class in trainset
@@ -1425,9 +1425,9 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp1","exp2","exp3"]
-seeds = [42, 43, 44, 45, 46]
-budgets = [25,50,100,125,150,175]
+experiments = ["exp1"]
+seeds = [24, 48, 86, 28, 92]
+budgets = [25,50,75,100,125,150,175]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
