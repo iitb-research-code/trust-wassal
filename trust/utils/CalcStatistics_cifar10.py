@@ -13,7 +13,7 @@ rounds=10
 #for cifar10
 base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/cifar10/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
-budgets = [25,50,100,150,175]
+budgets = [25,50,75,100,125,150,175]
 filename = "output_statistics_cifar10_vanilla"
 
 #strategies = ["WASSAL", "WASSAL_P", "fl1mi", "fl2mi", "gcmi", "logdetmi", "random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","logdetcmi","flcmi","margin"]

@@ -8,5 +8,5 @@ DEVICE_ID="5"
 EXPERIMENT_NAME="onlywassal"
 SOFT_LOSS_HYPERPARAM="0.3"
 # Call the Python script with the defined arguments
-python3 -u tutorials/All_Wassal/wassal_svhn_multiclass_vanilla.py "$SKIP_STRATEGIES" "$SKIP_METHODS" "$SKIP_BUDGETS" "$DEVICE_ID" "$EXPERIMENT_NAME" "$SOFT_LOSS_HYPERPARAM" 2>&1 | tee tutorials/results/onlywassal/svhnonlywassal3.log
+python3 -u tutorials/All_Wassal/wassal_svhn_multiclass_vanilla.py "$SKIP_STRATEGIES" "$SKIP_METHODS" "$SKIP_BUDGETS" "$DEVICE_ID" "$EXPERIMENT_NAME" "$SOFT_LOSS_HYPERPARAM" 2>&1 | tee tutorials/results/onlywassal/svhnonlywassal3_exp23.log
 python3 informme.py "sw3"

@@ -1399,8 +1399,9 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp1"]
-seeds = [24, 48, 86, 28, 92]
+    #exp1 = 24
+experiments = ["exp2","exp3"]
+seeds = [48, 86, 28, 92]
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 #budgets = [100]
 

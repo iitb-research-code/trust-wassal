@@ -1425,8 +1425,11 @@ def run_targeted_selection(
 
 
 # %%
-experiments = ["exp1"]
-seeds = [24, 48, 86, 28, 92]
+#experiments = ["exp1"]
+#seeds = [24, 48, 86, 28, 92]
+    
+experiments = ["exp2","exp3"]
+seeds = [48, 86, 28, 92]
 budgets = [25,50,75,100,125,150,175]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
