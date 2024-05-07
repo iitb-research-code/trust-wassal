@@ -1,3 +1,54 @@
+#mar 18- for exp1record
+#min max across class
+       
+        #once iterations are over or loss is less than 1, return the necessary indices
+        
+        # 1. Aggregate Maximum Values Across Classes
+        max_across_classes = torch.zeros(len(self.unlabeled_dataset), device=self.device)
+        for classwise_simplex in classwise_simplex_query:
+            max_across_classes = torch.max(max_across_classes, classwise_simplex)
+
+        # 2. Select Least Non-Zero Values
+        non_zero_indices = torch.nonzero(max_across_classes).squeeze()
+        #if descending is true, the values are sorted in descending order
+        sorted_values, sorted_indices = torch.sort(max_across_classes[non_zero_indices],descending=True)
+      
+
+       
+
+
+        selected_indices = sorted_indices[:budget].cpu().numpy()
+        
+        output=[]
+        
+        
+
+        for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
+            
+            # Get values from simplex_query and plot them
+            #plt.hist(simplex_values, bins=np.linspace(0, max(simplex_values), 50), alpha=0.5, label=f'Class {class_idx}')
+            
+           
+            # Mask out the values in simplex_query and simplex_refrain tensors
+            # corresponding to selected indices
+            masked_simplex_query = simplex_query.clone()
+            masked_simplex_refrain = classwise_simplex_refrain[iteridx].clone()
+            for idx in selected_indices:
+                masked_simplex_query[idx] = 0
+                masked_simplex_refrain[idx] = 0
+            
+            # Each tuple contains the sorted indices, the simplex_query tensor, and the class_idx
+            output.append((masked_simplex_query.detach().cpu(), masked_simplex_refrain.detach().cpu(), class_idx))
+            # Update the set with the indices selected for the current class
+            
+        
+       
+        
+        torch.cuda.empty_cache()
+        
+        return selected_indices,output
+
+
 #march 17 2024
   def select_only_for_query(self, budget):
           # venkat sir's code

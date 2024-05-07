@@ -39,7 +39,7 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 from trust.strategies.smi import SMI
 from trust.strategies.scmi import SCMI
 from trust.strategies.random_sampling import RandomSampling
-from trust.strategies.wassal_multiclass import WASSAL_Multiclass
+from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
 sys.path.append("/home/venkatapathy/distil")
@@ -1027,45 +1027,48 @@ def run_targeted_selection(
                 )
     
                 subset,classwise_final_indices_simplex = strategy_softsubset.select(budget)
-                classwise_final_indices_simplex_cpu = [
-                    (
-                        
-                        tensor1.clone().cpu().detach(),
-                        tensor2.clone().cpu().detach(),
-                        class_idx,
-                    )
-                    for (
-                       
-                        tensor1,
-                        tensor2,
-                        class_idx,
-                    ) in classwise_final_indices_simplex
-                ]
-                #create a folder to save the simplex plots
-                simplex_dir = (
-                    "/home/venkatapathy/trust-wassal/tutorials/results/"
-                    + experiment_name
-                    + "/"
-                    + dataset_name
-                    + "/"
-                    + feature
-                    + "/rounds"
-                    + str(num_rounds)
-                    + "/"
-                    + sf
-                    + "/"
-                    + str(bud)
-                    +"/"
-                    +str(run)                
-                    + "/simplex_viz/al_round_"
-                    +"/simplex/"
-                    +str(i)
+                #for WASSAL classwise_final_indices_simplex is none so below steps not needed
+                if classwise_final_indices_simplex is not None:
                     
-                )
-                subprocess.run(["mkdir", "-p", simplex_dir])  
-                plotsimpelxDistribution(
-                    lake_set, classwise_final_indices_simplex_cpu,simplex_dir
-                )
+                    classwise_final_indices_simplex_cpu = [
+                        (
+                        
+                            tensor1.clone().cpu().detach(),
+                            tensor2.clone().cpu().detach(),
+                            class_idx,
+                        )
+                        for (
+                            
+                            tensor1,
+                            tensor2,
+                            class_idx,
+                        ) in classwise_final_indices_simplex
+                    ]
+                    #create a folder to save the simplex plots
+                    simplex_dir = (
+                        "/home/venkatapathy/trust-wassal/tutorials/results/"
+                        + experiment_name
+                        + "/"
+                        + dataset_name
+                        + "/"
+                        + feature
+                        + "/rounds"
+                        + str(num_rounds)
+                        + "/"
+                        + sf
+                        + "/"
+                        + str(bud)
+                        +"/"
+                        +str(run)                
+                        + "/simplex_viz/al_round_"
+                        + "/simplex/"
+                        +str(i)
+                        
+                    )
+                    subprocess.run(["mkdir", "-p", simplex_dir])
+                    plotsimpelxDistribution(
+                        lake_set, classwise_final_indices_simplex_cpu,simplex_dir
+                    )
 
                 
 
