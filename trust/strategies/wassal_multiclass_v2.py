@@ -271,10 +271,14 @@ class WASSAL_Multiclass(Strategy):
        
         
         selected_indices=[]
-        #sort the simplex tensor
-        sorted_values, sorted_indices = torch.sort(simplex_tensor)
-        selected_indices=sorted_indices[:budget].cpu().numpy()
-
+        #sort the simplex tensor based on non-zero values ie ignore zero values
+        non_zero_indices = torch.nonzero(simplex_tensor)
+        sorted_indices = non_zero_indices[torch.argsort(simplex_tensor[non_zero_indices], descending=True)].squeeze()
+        #for descending uncomment the below code
+        #sorted_indices = non_zero_indices[torch.argsort(simplex_tensor[non_zero_indices], descending=True)].squeeze()
+        
+        selected_indices = sorted_indices[:budget].cpu().numpy()
+        
         
         
         return selected_indices, None

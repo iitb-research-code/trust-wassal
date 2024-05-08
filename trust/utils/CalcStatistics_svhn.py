@@ -13,7 +13,7 @@ rounds=10
 #for svhn
 base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/svhn/classimb/rounds"+str(rounds)
 #budgets=['5', '10', '15', '20', '25']
-budgets = [20,50,100,175]
+budgets = [25,50,100,175,200]
 filename = "output_statistics_svhn_vanilla"
 
 #strategies = ["WASSAL", "WASSAL_P", "fl1mi", "fl2mi", "gcmi", "logdetmi", "random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","logdetcmi","flcmi","margin"]
@@ -25,11 +25,11 @@ filename = "output_statistics_svhn_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSAL','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
+strategies = ['WASSALALLMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
 
-experiments=['exp1','exp2','exp3']
+experiments=['exp1','exp2']
 
 # Prepare the CSV file for saving stats
 output_path = os.path.join(base_dir, filename+"_group_"+strategy_group+"_rounds_"+str(rounds))
@@ -176,9 +176,8 @@ def generate_latex_table(data):
     main_strategies = strategies - withsoft_strategies
 
     # Dictionary to hold the max value for each budget
-    max_values = {}
-    for budget in budgets:
-        max_values[budget] = data[data['Budget'] == budget]['Mean Gain'].max()
+    max_values = {budget: data[data['Budget'] == budget]['Mean Gain'].max() for budget in budgets}
+
 
     table = "\\begin{table*}[h!]\n"  # Use table* for spanning two columns
     table += "\\centering\n"
@@ -202,10 +201,12 @@ def generate_latex_table(data):
             withsoft_mean_gain = withsoft_subset['Mean Gain'].values[0] if not withsoft_subset.empty else '-'
 
             # Format the values with conditional bold
+            if normal_mean_gain == max_values[budget]:
+                print('somethign is bolded')
             normal_gain_formatted = f"\\textbf{{{normal_mean_gain}}}" if normal_mean_gain == max_values[budget] and normal_mean_gain != '-' else str(normal_mean_gain)
             withsoft_gain_formatted = f"\\textbf{{{withsoft_mean_gain}}}" if withsoft_mean_gain == max_values[budget] and withsoft_mean_gain != '-' else str(withsoft_mean_gain)
 
-            combined_value = f"{normal_gain_formatted}({withsoft_gain_formatted})" if withsoft_mean_gain != '-' else str(normal_mean_gain)
+            combined_value = f"{normal_gain_formatted}({withsoft_gain_formatted})" if withsoft_mean_gain != '-' else str(normal_gain_formatted)
 
             row_data.append(combined_value)
         table += " & ".join(row_data) + " \\\\\n"
@@ -213,7 +214,7 @@ def generate_latex_table(data):
 
     table += "\\end{tabular}\n"
     table += "\\end{scriptsize}\n"
-    table += "\\caption{Mean Gain for various strategies across budgets for CIFAR1-}\n"
+    table += "\\caption{Mean Gain for various strategies across budgets for SVHN}\n"
     table += "\\label{tab:svhnlabels}\n"
     table += "\\end{table*}\n"  # Use table* for spanning two columns
 

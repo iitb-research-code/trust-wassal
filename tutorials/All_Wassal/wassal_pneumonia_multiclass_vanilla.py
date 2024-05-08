@@ -1403,7 +1403,7 @@ def run_targeted_selection(
 
 # %%
     #exp1 = 24
-experiments = ["exp2","exp3"]
+experiments = ["exp2","exp3","exp4"]
 seeds = [48, 86, 28, 92]
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 #budgets = [100]

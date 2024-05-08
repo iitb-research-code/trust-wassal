@@ -25,10 +25,10 @@ filename = "output_statistics_pneumo_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSAL_WITHSOFT','WASSAL','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
+strategies = ['WASSALALLMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
-experiments=['exp1','exp2','exp3']
+experiments=['exp2','exp3','exp4']
 #experiments=['exp2','exp3']
 
 # Prepare the CSV file for saving stats
@@ -205,7 +205,7 @@ def generate_latex_table(data):
             normal_gain_formatted = f"\\textbf{{{normal_mean_gain}}}" if normal_mean_gain == max_values[budget] and normal_mean_gain != '-' else str(normal_mean_gain)
             withsoft_gain_formatted = f"\\textbf{{{withsoft_mean_gain}}}" if withsoft_mean_gain == max_values[budget] and withsoft_mean_gain != '-' else str(withsoft_mean_gain)
 
-            combined_value = f"{normal_gain_formatted}({withsoft_gain_formatted})" if withsoft_mean_gain != '-' else str(normal_mean_gain)
+            combined_value = f"{normal_gain_formatted}({withsoft_gain_formatted})" if withsoft_mean_gain != '-' else str(normal_gain_formatted)
 
             row_data.append(combined_value)
         table += " & ".join(row_data) + " \\\\\n"
