@@ -167,7 +167,7 @@ class WASSAL_Multiclass(Strategy):
         unlabeled_dataset_features = self._compute_features(self.unlabeled_dataset, embedding_type, layer_name, gradType, False).to(self.device)
 
         temp_loop=True
-        for epoch in range(2):
+        for epoch in range(iterations):
             total_loss = 0.0
             optimizer.zero_grad()
 
