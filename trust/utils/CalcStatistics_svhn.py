@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #budgets=['5']
 #filename = "output_statistics_cifar_classimb_withAL_"
-rounds=3
+rounds=10
 
 #for svhn
 base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/svhn/classimb/rounds"+str(10)
@@ -25,7 +25,7 @@ filename = "output_statistics_svhn_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSALNONMIN','WASSALALLMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
+strategies = ['WASSALMAXPRE','WASSALMAX','WASSALALLMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
 

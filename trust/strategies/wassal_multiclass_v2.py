@@ -50,16 +50,18 @@ class WASSAL_Multiclass(Strategy):
     
     def __init__(self, labeled_dataset, unlabeled_dataset, query_dataset,net, nclasses, args={}): #
         #pretrained resnet18 as
-        #self.pretrained_model=True 
-        #self.net = resnet18(pretrained=True)
-        self.pretrained_model=False 
-        self.net=net
+        self.pretrained_model=True 
+        self.net = resnet18(pretrained=True)
+        #self.pretrained_model=False 
+        #self.net=net
         #merge labeled and query dataset into query and non-query classes and finetune the resnet50
         
         
         super(WASSAL_Multiclass, self).__init__(labeled_dataset, unlabeled_dataset, net, nclasses, args)        
         self.query_dataset = query_dataset
         self.args['verbose']=True
+        self.temp_first_time=True
+        self.temp_second_time=False
         
         
 
@@ -118,10 +120,9 @@ class WASSAL_Multiclass(Strategy):
             self.model = clf
 
     def select_only_elements(self, budget):
-          # venkat sir's code
         """
-        Selects next set of points. Weights are all reset since in this 
-        strategy the datapoints are removed
+        Selects next set of points based on optimizing Wasserstein distance
+        between labeled (divided by class) and unlabeled batches.
         
         Parameters
         ----------
@@ -132,156 +133,100 @@ class WASSAL_Multiclass(Strategy):
         ----------
         idxs: list
             List of selected data point indices with respect to unlabeled_dataset
-        """	
+        """ 
         
-        #Get hyperparameters from args dict
-        embedding_type = self.args['embedding_type'] if 'embedding_type' in self.args else "features"
-        if(embedding_type=="features"):
-            layer_name = self.args['layer_name'] if 'layer_name' in self.args else "avgpool"
-        gradType=None
-        if(embedding_type=="gradients"):
-            gradType = self.args['gradType'] if 'gradType' in self.args else "bias_linear"
-        loss_func = SamplesLoss("sinkhorn", p=2, blur=0.05, scaling=0.7,backend="online")
         
-        unlabeled_dataset_len=len(self.unlabeled_dataset)
+
+
+        embedding_type = self.args.get('embedding_type', "features")
+        layer_name = self.args.get('layer_name', "avgpool") if embedding_type == "features" else None
+        gradType = self.args.get('gradType', "bias_linear") if embedding_type == "gradients" else None
+        minibatch_size = self.args.get('minibatch_size', 4000)
+        lr = self.args.get('lr', 0.001)
+        step_size = self.args.get('step_size', 10)
+        iterations = self.args.get('wassal_iterations', 100)
+
+        loss_func = SamplesLoss("sinkhorn", p=2, blur=0.05, scaling=0.7, backend="online")
+        
+        # Determine the unique classes in the query dataset
+        classes = torch.stack([item[1] for item in self.query_dataset]).to(self.device)  # Assuming item[1] is the class label
+        unique_classes = torch.unique(classes)
+
+        unlabeled_dataset_len = len(self.unlabeled_dataset)
         shuffled_indices = list(range(unlabeled_dataset_len))
         random.shuffle(shuffled_indices)
-        sampler = customSampler(shuffled_indices)
-
-        query_dataset_len = len(self.query_dataset)
-        minibatch_size = self.args['minibatch_size'] if 'minibatch_size' in self.args else 4000
-       
-        num_batches = math.ceil(unlabeled_dataset_len/minibatch_size)
-        # if(self.args['verbose']):
-        #     print('There are',unlabeled_dataset_len,'Unlabeled dataset')
-        simplex_tensor = torch.ones(unlabeled_dataset_len, device=self.device)
-        simplex_tensor=(simplex_tensor/unlabeled_dataset_len).clone().detach().requires_grad_(True)
         
-        
-         # Hyperparameters for sinkhorn iterations
-         #if self.args has lr, use that else use 0.001
-        lr = self.args['lr'] if 'lr' in self.args else 0.001
-        min_iteration=self.args['min_iteration'] if 'min_iteration' in self.args else 50
-        
-        step_size = self.args['step_size'] if 'step_size' in self.args else 10
-           
+        # Initializing optimization
+        simplex_tensor = torch.ones(unlabeled_dataset_len, device=self.device) / unlabeled_dataset_len
+        simplex_tensor.requires_grad_(True)
         optimizer = torch.optim.Adam([simplex_tensor], lr=lr)
-        #optimizer = torch.optim.SGD(self.classwise_simplex_query+self.classwise_simplex_refrain, lr=lr)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
 
-        scheduler_query = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
-        
-        # 1. Precompute features for query_dataset
-        query_dataset_features = self._compute_features(self.query_dataset, embedding_type, layer_name, gradType,True)
-        query_dataset_len = len(self.query_dataset)
-    
-        # 2. Precompute features for unlabeled_dataset
-        unlabeled_dataset_features = self._compute_features(self.unlabeled_dataset, embedding_type, layer_name, gradType,False)
-        unlabeled_dataset_len = len(self.unlabeled_dataset)
-        
-        #multiclass selection
-        #if self.args has iterations, use that else use 100
-        iterations = self.args['wassal_iterations'] if 'wassal_iterations' in self.args else 100
-        
-       
+        # Precompute features on the same device
+        query_dataset_features = self._compute_features(self.query_dataset, embedding_type, layer_name, gradType, True).to(self.device)
+        unlabeled_dataset_features = self._compute_features(self.unlabeled_dataset, embedding_type, layer_name, gradType, False).to(self.device)
 
-        #first get query and refrain params ready
-        
-        for i in range(iterations):
-            # Create lists to store the loss values           
-           
-            #print('entering iterations')
-            # Initialize total loss as a tensor with requires_grad=True
-            loss = 0.0
-            
+        temp_loop=True
+        for epoch in range(2):
+            total_loss = 0.0
             optimizer.zero_grad()
-            #calculate loss classwise in query dataset
-            
-            query_dataset_features=query_dataset_features.to(self.device)
-            beta = torch.ones(len(query_dataset_features), requires_grad=False)/len(query_dataset_features)
-            beta=beta.to(self.device)
 
-                
-            loss_avg_query=0.0
-            
-            #calc num_batches
-            num_batches = math.ceil(unlabeled_dataset_len/minibatch_size)
-            #batchiwise WD calculation
-            
+            num_batches = math.ceil(unlabeled_dataset_len / minibatch_size)
             for batch_idx in range(num_batches):
-                #print('entering batchwise')
-                # Get the features using the pretrained model
-            
-            
-            # Handle the last batch size
-                current_batch_size = len(simplex_tensor[batch_idx*minibatch_size:])
+                start_idx = batch_idx * minibatch_size
+                end_idx = min((batch_idx + 1) * minibatch_size, unlabeled_dataset_len)
+                batch_features = unlabeled_dataset_features[start_idx:end_idx]
+                batch_simplex = simplex_tensor[start_idx:end_idx]
+                batch_simplex = batch_simplex / batch_simplex.sum()  # Normalize simplex for current batch
 
-            #if the current batch size is less than minibatch size, then we need to adjust the simplex batch query and simplex batch refrain
-                    
-                if(current_batch_size<minibatch_size) and batch_idx !=  0:
-                    diff=minibatch_size-current_batch_size
-                    #for beginning index 0 add 1 to diff
-                        
-                    begindex=(batch_idx*minibatch_size)-diff
-                    endindex=((batch_idx+1)*minibatch_size)-diff
-                else:
-                    begindex=batch_idx*minibatch_size
-                    endindex=(batch_idx+1)*minibatch_size
-                #simplex batch query
-                simplex_batch_query = simplex_tensor[begindex : endindex]
-                #should we average or project?
-                if(simplex_batch_query.sum()!=0):
-                    simplex_batch_query = simplex_batch_query.clone() / simplex_batch_query.sum()
-                #simplex_batch_query.requires_grad = True
-                simplex_batch_query=simplex_batch_query.to(self.device)
-                   
-                #get minibatch unlabeled features
-                unlabeled_features = unlabeled_dataset_features[begindex : endindex]
-                    
-                        
-                    
-                unlabeled_features=unlabeled_features.to(self.device)
-                loss_avg_query=loss_avg_query+(loss_func(simplex_batch_query, unlabeled_features, beta, query_dataset_features) / num_batches)
-                    
-                    
-                    
+                batch_loss = 0.0
+                for cls in unique_classes:
+                    cls_mask = (classes == cls)
+                    cls_features = query_dataset_features[cls_mask]
+                    cls_beta = torch.ones(cls_features.size(0), device=self.device) / cls_features.size(0)
+
+                    if cls_features.size(0) > 0:
+                        #for debugging purposes:
+                        # if temp_loop:
+                        #     temp_loop=False
+                        #     if self.temp_second_time:
+                        #         self.temp_second_time=False
+                        #         self.temp_loss2=loss_func(self.temp_batch_simplex, self.temp_batch_features, self.temp_cls_beta, self.temp_cls_features)
+                        #         print('loss',self.temp_loss,'loss2',self.temp_loss2)
+
+                        #     if self.temp_first_time:
+                        #         self.temp_first_time=False
+                        #         self.temp_second_time=True
+                        #         self.temp_batch_simplex=batch_simplex
+                        #         self.temp_batch_features= batch_features
+                        #         self.temp_cls_beta=cls_beta
+                        #         self.temp_cls_features=cls_features
+                        #         self.temp_loss=loss_func(batch_simplex, batch_features, cls_beta, cls_features)
+                            
+
+                        batch_loss += loss_func(batch_simplex, batch_features, cls_beta, cls_features) / num_batches
+
+
+                total_loss += batch_loss
             
-            #once all batches are done, calculate average loss
-            
-            loss=loss_avg_query
-            
-            #once one iteration is done for class, do backward and step
-            loss.backward()
+            total_loss.backward()
             optimizer.step()
-            scheduler_query.step()
-            #project to simplex
-                           
+            scheduler.step()
+
             with torch.no_grad():
-                simplex_tensor.data = self._proj_simplex(simplex_tensor.data)
-                    
-            
-            print("Epoch:[", i,"],Avg loss: [{}]".format(loss),end="\r")
-                    #break if loss is less than 1 or greater than -1
-                    
+                simplex_tensor.data = self._proj_simplex(simplex_tensor.data)  # Project simplex back after update
 
+            print(f"Epoch: [{epoch}], Loss: {total_loss.item():.4f}", end="\r")
 
-            if((loss.item()<0.2 and loss.item()>-0.2) and i>min_iteration):
+            if abs(total_loss.item()) < 0.2 and epoch > self.args.get('min_iteration', 50):
                 break
-        
-        
-       
-        
-        selected_indices=[]
-        #sort the simplex tensor based on non-zero values ie ignore zero values
-        non_zero_indices = torch.nonzero(simplex_tensor)
-        sorted_indices = non_zero_indices[torch.argsort(simplex_tensor[non_zero_indices], descending=True)].squeeze()
-        #for descending uncomment the below code
-        #sorted_indices = non_zero_indices[torch.argsort(simplex_tensor[non_zero_indices], descending=True)].squeeze()
-        
+
+        sorted_values, sorted_indices = torch.sort(simplex_tensor, descending=True)
         selected_indices = sorted_indices[:budget].cpu().numpy()
         
-        
-        
         return selected_indices, None
+
+
 
 
     def select_for_query_refrain(self, budget):
