@@ -25,7 +25,7 @@ filename = "output_statistics_cifar10_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSALMAXPRE','WASSALMAX','WASSALALLMIN','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
+strategies = ['WASSALMAXPRE','WASSALMAX','WASSALMIN','glister','glister_withsoft','gradmatch-tss','gradmatch-tss_withsoft','us','us_withsoft','coreset','coreset_withsoft','leastconf','leastconf_withsoft','margin','margin_withsoft','random']
 strategy_group="AL_WITHSOFT"
 
 

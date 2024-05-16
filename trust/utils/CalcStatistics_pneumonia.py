@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 
 #budgets=['5']
 #filename = "output_statistics_cifar_classimb_withAL_"
-rounds=10
+rounds=2
 
 #for pneumonia
-base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/pneumoniamnist/classimb/rounds"+str(rounds)
+base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/pneumoniamnist/classimb/rounds"+str(10)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 filename = "output_statistics_pneumo_vanilla"
@@ -25,7 +25,7 @@ filename = "output_statistics_pneumo_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSALMAXPRE','WASSALMAX','WASSALALLMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
+strategies = ['WASSALMAXPRE','WASSALMAX','WASSALMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
 experiments=['exp2','exp3','exp4']
@@ -87,7 +87,7 @@ with open(output_path+"_allclasses.csv", "w", newline='') as csvfile:
                     y2 = df.iloc[rounds-2, 2]
                     gain2 = y2 - y1
 
-                    gain=gain1 if gain1>gain2 else gain2
+                    gain=gain1 #if gain1>gain2 else gain2
                     
                    
                     gains.append(gain)

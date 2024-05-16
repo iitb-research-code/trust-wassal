@@ -221,11 +221,15 @@ class WASSAL_Multiclass(Strategy):
             if abs(total_loss.item()) < 0.2 and epoch > self.args.get('min_iteration', 50):
                 break
 
-        sorted_values, sorted_indices = torch.sort(simplex_tensor, descending=True)
-        selected_indices = sorted_indices[:budget].cpu().numpy()
-        
-        return selected_indices, None
+        # Get the indices of non-zero elements in simplex_tensor
+        non_zero_indices = torch.nonzero(simplex_tensor, as_tuple=True)[0]
+        non_zero_values = simplex_tensor[non_zero_indices]
 
+        # Sort the non-zero values in ascending order along with their indices
+        sorted_values, sort_indices = torch.sort(non_zero_values)
+        selected_indices = non_zero_indices[sort_indices[:budget]].cpu().numpy()
+
+        return selected_indices, None
 
     def select_elements_and_soft(self, budget):
         """
@@ -332,9 +336,13 @@ class WASSAL_Multiclass(Strategy):
                 break
         
 
-        sorted_values, sorted_indices = torch.sort(simplex_tensor, descending=True)
-        selected_indices = sorted_indices[:budget].cpu().numpy()
-        
+        # Get the indices of non-zero elements in simplex_tensor
+        non_zero_indices = torch.nonzero(simplex_tensor, as_tuple=True)[0]
+        non_zero_values = simplex_tensor[non_zero_indices]
+
+        # Sort the non-zero values in ascending order along with their indices
+        sorted_values, sort_indices = torch.sort(non_zero_values)
+        selected_indices = non_zero_indices[sort_indices[:budget]].cpu().numpy()
         #once pu is found do equ 6 of https://www.overleaf.com/project/6209ee726c723a7ddb95defa
 
         classwise_simplex_query = []
@@ -415,7 +423,7 @@ class WASSAL_Multiclass(Strategy):
 
             if abs(total_loss.item()) < 0.2 and epoch > self.args.get('min_iteration', 50):
                 break
-            
+
         output=[]   
         for iteridx,(class_idx, simplex_query) in enumerate(label_to_simplex_query.items()):
             masked_simplex_query = simplex_query.clone()
@@ -428,6 +436,8 @@ class WASSAL_Multiclass(Strategy):
 
         torch.cuda.empty_cache()
         return selected_indices, output
+
+
 
     def select_for_query_refrain(self, budget):
           # venkat sir's code

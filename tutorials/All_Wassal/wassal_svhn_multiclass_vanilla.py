@@ -39,7 +39,7 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 from trust.strategies.smi import SMI
 from trust.strategies.scmi import SCMI
 from trust.strategies.random_sampling import RandomSampling
-from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
+from trust.strategies.wassal_multiclass_v2_min import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
 sys.path.append("/home/venkatapathy/distil")
@@ -587,49 +587,49 @@ num_cls = 10
 # budget = 10
 visualize_tsne = False
 # for real experiments
-# split_cfg = {
-#     'train_size': 100,
-#     'val_size': 200,
-#     'lake_size': 5000,
-#     'sel_cls_idx': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-#     'per_class_train': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],  # List of sizes for each class
-#     'per_class_val': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-#     'per_class_lake': [3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000]
-# } #Number of samples per unrare class in the unlabeled dataset
+split_cfg = {
+    'train_size': 100,
+    'val_size': 200,
+    'lake_size': 5000,
+    'sel_cls_idx': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    'per_class_train': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],  # List of sizes for each class
+    'per_class_val': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+    'per_class_lake': [3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000]
+} #Number of samples per unrare class in the unlabeled dataset
 
 # for smaller experiements
-split_cfg = {
-    "num_cls_imbalance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    "sel_cls_idx": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    "per_class_train": [
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-    ],  # List of sizes for each class
-    "per_class_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-    "per_class_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
-    "per_imbclass_train": [
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-        20,
-    ],  # List of sizes for each class
-    "per_imbclass_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-    "per_imbclass_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
-}  # Number of samples per unrare class in the unlabeled dataset
+# split_cfg = {
+#     "num_cls_imbalance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+#     "sel_cls_idx": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+#     "per_class_train": [
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#     ],  # List of sizes for each class
+#     "per_class_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+#     "per_class_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+#     "per_imbclass_train": [
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#         20,
+#     ],  # List of sizes for each class
+#     "per_imbclass_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+#     "per_imbclass_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+# }  # Number of samples per unrare class in the unlabeled dataset
 
 print("split_cfg:", split_cfg)
 
