@@ -422,7 +422,7 @@ class WASSAL_Multiclass(Strategy):
             for idx in selected_indices:
                 masked_simplex_query[idx] = 0
 
-            output.append(masked_simplex_query.detach().cpu(), None)
+            output.append((masked_simplex_query.detach().cpu(), masked_simplex_query.detach().cpu(),class_idx))
 
             
 
@@ -743,5 +743,5 @@ class WASSAL_Multiclass(Strategy):
 
 
     def select(self, budget):
-        return self.select_only_elements(budget)
+        return self.select_elements_and_soft(budget)
         

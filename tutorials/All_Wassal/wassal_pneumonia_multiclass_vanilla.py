@@ -39,7 +39,7 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 from trust.strategies.smi import SMI
 from trust.strategies.scmi import SCMI
 from trust.strategies.random_sampling import RandomSampling
-from trust.strategies.wassal_multiclass_v2_min import WASSAL_Multiclass
+from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
 sys.path.append("/home/venkatapathy/distil")
