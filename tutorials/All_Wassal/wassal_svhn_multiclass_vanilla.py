@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/venkatapathy/trust-wassal/")
+sys.path.append("/home/venkat/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -42,7 +42,7 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/venkatapathy/distil")
+sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
@@ -587,49 +587,49 @@ num_cls = 10
 # budget = 10
 visualize_tsne = False
 # for real experiments
-split_cfg = {
-    'train_size': 100,
-    'val_size': 200,
-    'lake_size': 5000,
-    'sel_cls_idx': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-    'per_class_train': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],  # List of sizes for each class
-    'per_class_val': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-    'per_class_lake': [3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000]
-} #Number of samples per unrare class in the unlabeled dataset
+# split_cfg = {
+#     'train_size': 100,
+#     'val_size': 200,
+#     'lake_size': 5000,
+#     'sel_cls_idx': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+#     'per_class_train': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],  # List of sizes for each class
+#     'per_class_val': [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+#     'per_class_lake': [3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000]
+# } #Number of samples per unrare class in the unlabeled dataset
 
 # for smaller experiements
-# split_cfg = {
-#     "num_cls_imbalance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-#     "sel_cls_idx": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-#     "per_class_train": [
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#     ],  # List of sizes for each class
-#     "per_class_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-#     "per_class_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
-#     "per_imbclass_train": [
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#         20,
-#     ],  # List of sizes for each class
-#     "per_imbclass_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-#     "per_imbclass_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
-# }  # Number of samples per unrare class in the unlabeled dataset
+split_cfg = {
+    "num_cls_imbalance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "sel_cls_idx": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "per_class_train": [
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+    ],  # List of sizes for each class
+    "per_class_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+    "per_class_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+    "per_imbclass_train": [
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+    ],  # List of sizes for each class
+    "per_imbclass_val": [10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+    "per_imbclass_lake": [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+}  # Number of samples per unrare class in the unlabeled dataset
 
 print("split_cfg:", split_cfg)
 
@@ -711,7 +711,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/venkatapathy/trust-wassal/tutorials/results/"
+        "/home/venkat/trust-wassal/tutorials/results/"
         + experiment_name
         + "/"
         + dataset_name
@@ -1046,7 +1046,7 @@ def run_targeted_selection(
                     ]
                     #create a folder to save the simplex plots
                     simplex_dir = (
-                        "/home/venkatapathy/trust-wassal/tutorials/results/"
+                        "/home/venkat/trust-wassal/tutorials/results/"
                         + experiment_name
                         + "/"
                         + dataset_name
@@ -1490,7 +1490,7 @@ budgets = [25,50,100,125,150,175,200]
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/venkatapathy/trust-wassal/tutorials/results/"
+    "/home/venkat/trust-wassal/tutorials/results/"
     + experiment_name
     + "/"
     
