@@ -26,7 +26,7 @@ import torchvision.models as models
 from matplotlib import pyplot as plt
 import sys
 import requests
-sys.path.append("/home/venkatapathy/trust-wassal/")
+sys.path.append("/home/venkat/trust-wassal/")
 
 from trust.utils.models.resnet import ResNet18
 from trust.utils.models.resnet import ResNet50
@@ -36,22 +36,22 @@ from torch.autograd import Variable
 import tqdm
 from math import floor
 from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
-from trust.strategies.smi import SMI
-from trust.strategies.scmi import SCMI
-from trust.strategies.random_sampling import RandomSampling
+# from trust.strategies.smi import SMI
+# from trust.strategies.scmi import SCMI
+# from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
-from trust.strategies.wassal_private import WASSAL_P
+# from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/venkatapathy/distil")
-from distil.active_learning_strategies.entropy_sampling import EntropySampling
-from distil.active_learning_strategies.badge import BADGE
-from distil.active_learning_strategies.glister import GLISTER
-from distil.active_learning_strategies.gradmatch_active import GradMatchActive
-from distil.active_learning_strategies.core_set import CoreSet
-from distil.active_learning_strategies.least_confidence_sampling import (
-    LeastConfidenceSampling,
-)
-from distil.active_learning_strategies.margin_sampling import MarginSampling
+sys.path.append("/home/venkat/distil")
+# from distil.active_learning_strategies.entropy_sampling import EntropySampling
+# from distil.active_learning_strategies.badge import BADGE
+# from distil.active_learning_strategies.glister import GLISTER
+# from distil.active_learning_strategies.gradmatch_active import GradMatchActive
+# from distil.active_learning_strategies.core_set import CoreSet
+# from distil.active_learning_strategies.least_confidence_sampling import (
+#     LeastConfidenceSampling,
+# )
+# from distil.active_learning_strategies.margin_sampling import MarginSampling
 
 seed = 42
 torch.manual_seed(seed)
@@ -711,7 +711,7 @@ def run_targeted_selection(
     val_csvlog = []
     # Results logging file
     all_logs_dir = (
-        "/home/venkatapathy/trust-wassal/tutorials/results/"
+        "/home/venkat/trust-wassal/tutorials/results/"
         + experiment_name
         + "/"
         
@@ -1043,7 +1043,7 @@ def run_targeted_selection(
                     ]
                     #create a folder to save the simplex plots
                     simplex_dir = (
-                        "/home/venkatapathy/trust-wassal/tutorials/results/"
+                        "/home/venkat/trust-wassal/tutorials/results/"
                         + experiment_name
                         + "/"
                         + dataset_name
@@ -1490,7 +1490,7 @@ budgets = [25,50,100,125,150,175,200]
 embedding_type = "features"  # Type of the representation to use (gradients/features)
 model_name = "ResNet18"  # Model to use for training
 initModelPath = (
-    "/home/venkatapathy/trust-wassal/tutorials/results/"
+    "/home/venkat/trust-wassal/tutorials/results/"
     + experiment_name
     + "/"
     + data_name
