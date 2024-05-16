@@ -351,7 +351,7 @@ class WASSAL_Multiclass(Strategy):
         
         optimizer = torch.optim.Adam(classwise_simplex_query, lr=lr)
 
-        scheduler_query = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=0.1)
 
         for epoch in range(iterations):
             total_loss = 0.0
@@ -399,7 +399,7 @@ class WASSAL_Multiclass(Strategy):
                             #         self.temp_loss=loss_func(batch_simplex, batch_features, cls_beta, cls_features)
                                 
 
-                        batch_loss += (loss_func(simplex_batch_query, batch_features, cls_beta, cls_features) / num_batches)-(loss_func(simplex_batch_query, batch_features, batch_simplex, batch_features) / num_batches)
+                        batch_loss += (loss_func(simplex_batch_query, batch_features, cls_beta, cls_features)-loss_func(simplex_batch_query, batch_features, batch_simplex, batch_features) )/ num_batches
 
 
                         total_loss += batch_loss
@@ -409,7 +409,10 @@ class WASSAL_Multiclass(Strategy):
             scheduler.step()
 
             with torch.no_grad():
-                simplex_query.data = self._proj_simplex(simplex_query.data)  # Project simplex back after update
+                simplex_query.data = self._proj_simplex(simplex_query.data)  # Project simplex back after 
+                #check if the simplex_query has negative values
+                if torch.any(simplex_query.data<0):
+                    print('Simplex has negative value')
 
             print(f"Epoch: [{epoch}], Eq 6 Loss: {total_loss.item():.4f}", end="\r")
 
