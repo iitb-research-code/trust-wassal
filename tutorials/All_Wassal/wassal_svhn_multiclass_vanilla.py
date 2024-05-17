@@ -42,15 +42,13 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-sys.path.append("/home/venkat/distil")
+#sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
 from distil.active_learning_strategies.gradmatch_active import GradMatchActive
 from distil.active_learning_strategies.core_set import CoreSet
-from distil.active_learning_strategies.least_confidence_sampling import (
-    LeastConfidenceSampling,
-)
+#from distil.active_learning_strategies.least_confidence_sampling import (     LeastConfidenceSampling,)
 from distil.active_learning_strategies.margin_sampling import MarginSampling
 
 seed = 42
