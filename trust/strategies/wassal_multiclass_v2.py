@@ -409,10 +409,8 @@ class WASSAL_Multiclass(Strategy):
             scheduler.step()
 
             with torch.no_grad():
-                simplex_query.data = self._proj_simplex(simplex_query.data)  # Project simplex back after 
-                #check if the simplex_query has negative values
-                if torch.any(simplex_query.data<0):
-                    print('Simplex has negative value')
+                for class_idx in range(num_classes):
+                    classwise_simplex_query[class_idx].data = self._proj_simplex(classwise_simplex_query[class_idx].data)
 
             print(f"Epoch: [{epoch}], Eq 6 Loss: {total_loss.item():.4f}", end="\r")
 
