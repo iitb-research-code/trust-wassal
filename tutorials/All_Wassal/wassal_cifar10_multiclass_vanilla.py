@@ -39,7 +39,7 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 # from trust.strategies.smi import SMI
 # from trust.strategies.scmi import SCMI
 # from trust.strategies.random_sampling import RandomSampling
-from trust.strategies.wassal_multiclass_v2 import WASSAL_Multiclass
+from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 # from trust.strategies.wassal_private import WASSAL_P
 
 sys.path.append("/home/venkat/distil")
@@ -765,8 +765,8 @@ def run_targeted_selection(
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.01,
-        "wassal_iterations": 50,
+        "lr": 0.001,
+        "wassal_iterations": 10,
         "step_size": 10,
         "min_iteration": 5,
     }
