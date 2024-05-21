@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 rounds=10
 
 #for svhn
-base_dir = "/home/venkatapathy/trust-wassal/tutorials/results/inpaper/svhn/classimb/rounds"+str(10)
+base_dir = "/home/venkat/trust-wassal/tutorials/results/inpaper/svhn/classimb/rounds"+str(10)
 #budgets=['5', '10', '15', '20', '25']
 budgets = [25,50,100,175,200]
 filename = "output_statistics_svhn_vanilla"
@@ -25,11 +25,11 @@ filename = "output_statistics_svhn_vanilla"
 #strategies = ["WASSAL",  "fl1mi", "fl2mi", "gcmi", "logdetmi","fl1mi_withsoft", "fl2mi_withsoft", "gcmi_withsoft", "logdetmi_withsoft", "random","WASSAL_P","logdetcmi","flcmi","logdetcmi_withsoft","flcmi_withsoft"]
 #strategy_group="WASSAL_withsoft"
 #strategies = ["random","badge","us","glister","coreset","glister","gradmatch-tss","leastconf","margin","badge_withsoft","us_withsoft","glister_withsoft","coreset_withsoft","glister_withsoft","gradmatch-tss_withsoft","leastconf_withsoft","margin_withsoft"]
-strategies = ['WASSALMAXPRE','WASSALMAX','WASSALMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
+strategies = ['WASSAL','WASSALMAXPRE','WASSALMAX','WASSALMIN','glister','gradmatch-tss','us','coreset','leastconf','margin','random']
 strategy_group="AL_WITHSOFT"
 
 
-experiments=['exp1','exp2']
+experiments=['exp2','exp3','exp4']
 
 # Prepare the CSV file for saving stats
 output_path = os.path.join(base_dir, filename+"_group_"+strategy_group+"_rounds_"+str(rounds))
@@ -184,7 +184,7 @@ def generate_latex_table(data):
     table += "\\begin{scriptsize}\n"
     table += "\\begin{tabular}{|l|*{%d}{c|}}\n" % len(budgets)
     table += "\\hline\n"
-    table += "Strategy (withsoft) & " + " & ".join(map(str, budgets)) + " \\\\\n"
+    table += "Strategy & " + " & ".join(map(str, budgets)) + " \\\\\n"
     table += "\\hline\n"
     table += "\\hline\n"
 

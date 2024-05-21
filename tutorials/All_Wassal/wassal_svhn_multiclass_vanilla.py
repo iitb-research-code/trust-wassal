@@ -42,13 +42,13 @@ from trust.strategies.random_sampling import RandomSampling
 from trust.strategies.wassal_multiclass import WASSAL_Multiclass
 from trust.strategies.wassal_private import WASSAL_P
 
-#sys.path.append("/home/venkat/distil")
+sys.path.append("/home/venkat/distil")
 from distil.active_learning_strategies.entropy_sampling import EntropySampling
 from distil.active_learning_strategies.badge import BADGE
 from distil.active_learning_strategies.glister import GLISTER
 from distil.active_learning_strategies.gradmatch_active import GradMatchActive
 from distil.active_learning_strategies.core_set import CoreSet
-#from distil.active_learning_strategies.least_confidence_sampling import (     LeastConfidenceSampling,)
+from distil.active_learning_strategies.least_confidence_sampling import (     LeastConfidenceSampling,)
 from distil.active_learning_strategies.margin_sampling import MarginSampling
 
 seed = 42
@@ -762,8 +762,8 @@ def run_targeted_selection(
         "device": device,
         "embedding_type": embedding_type,
         "keep_embedding": True,
-        "lr": 0.01,
-        "wassal_iterations": 50,
+        "lr": 0.003,
+        "wassal_iterations": 10,
         "step_size": 10,
         "min_iteration": 5,
         
@@ -1431,7 +1431,7 @@ def run_targeted_selection(
 #exp1=24
 experiments = ["exp2","exp3","exp4"]
 seeds = [48, 86, 28, 92]
-budgets = [25,50,100,125,150,175,200]
+budgets = [25,50,100,175,200]
 
 # embedding_type = "features" #Type of the representation to use (gradients/features)
 # model_name = 'ResNet18' #Model to use for training
